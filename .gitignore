@@ -1,14 +1,71 @@
-# ---> Java
-*.class
+target/
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+*.iml
 
-# Package Files #
-*.jar
-*.war
-*.ear
+.idea/
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+src/main/resources/public/app
 
+log/
+
+
+
+nb-configuration.xml
+
+
+
+# Mac
+
+.DS_Store
+
+# Win
+
+Thumbs.db
+
+ehthumbs.db
+
+#IntelliJ
+
+.idea
+
+
+
+#yeoman
+
+# node_modules
+
+node_modules
+
+report
+
+coverage
+
+build
+
+tmp
+
+
+
+# Log files
+
+*.log
+
+
+
+### Node ###
+
+# Logs
+
+logs
+
+*.log
+
+# Runtime data
+
+pids
+
+*.pid
+
+*.seed
+
+/nbproject/
