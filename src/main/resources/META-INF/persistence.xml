@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+    <persistence-unit name="br.com.xbrain.Eccp2JavaAsteriskPU" transaction-type="RESOURCE_LOCAL">
+        <!--<provider>org.hibernate.ejb.HibernatePersistence</provider>-->
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        
+        <class>br.com.xbrain.eccp2java.database.model.QueueConfig</class>
+        <class>br.com.xbrain.eccp2java.database.model.QueueDetail</class>
+        
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
+            <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
+        </properties>
+    </persistence-unit>
+    
+    <persistence-unit name="br.com.xbrain.Eccp2JavaCallCenterPU" transaction-type="RESOURCE_LOCAL">
+        <!--<provider>org.hibernate.ejb.HibernatePersistence</provider>-->
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        
+        <class>br.com.xbrain.eccp2java.database.model.Agent</class>
+        <class>br.com.xbrain.eccp2java.database.model.Call</class>
+        <class>br.com.xbrain.eccp2java.database.model.CallAttribute</class>
+        <class>br.com.xbrain.eccp2java.database.model.Campaign</class>
+        <class>br.com.xbrain.eccp2java.database.model.CampaignExternalUrl</class>
+        <class>br.com.xbrain.eccp2java.database.model.Form</class>
+        
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
+            <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
+        </properties>
+    </persistence-unit>
+</persistence>
