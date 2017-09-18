@@ -86,18 +86,23 @@ public class SocketConnection implements AutoCloseable {
             EccpRequestFactory<EccpLoginRequest> xmlCreator = EccpRequestFactory.create(request);
             Transformer transformer = DocumentUtils.createTransformer();
             DOMSource source = new DOMSource(xmlCreator.toDocument());
-            StreamResult result1 = new StreamResult(socket.getOutputStream());
-            transformer.transform(source, result1);
-            Document responseDocument = DocumentUtils.parseDocument(readResponse());
-            //return new EccpResponseFactory(responseDocument).createResponse();
             int retries = 0;
             while (retries++ < 3) {
                 try {
+                    StreamResult result1 = new StreamResult(socket.getOutputStream());
+                    transformer.transform(source, result1);
+                    Document responseDocument = DocumentUtils.parseDocument(readResponse());
+                    
+                    //return new EccpResponseFactory(responseDocument).createResponse();
+
                     return request.expectedResponseType().cast(
                             new EccpResponseFactory(responseDocument).createResponse());
+
                 } catch (ClassCastException | EccpException ex) {
+                    waitForNextResponse();
                     LOG.log(Level.WARNING,
-                            "Tipo inesperado para o response {0}. Retentando: {1}.", new Object[]{ex.getMessage(), retries});
+                            "Tipo inesperado para o response {0}. Retentando: {1}.",
+                            new Object[]{ex.getMessage(), retries});
                 }
             }
         } catch (IllegalArgumentException | IOException | TransformerException ex) {
@@ -134,5 +139,14 @@ public class SocketConnection implements AutoCloseable {
             throw new IllegalArgumentException(response + " não é uma resposta válida");
         }
         return response.substring(begin, end + filterTag.length());
+    }
+
+    private void waitForNextResponse() {
+        try {
+            LOG.log(Level.INFO, "{0} aguardando pela próxima resposta.", new Object[] {Thread.currentThread().getName()});
+            Thread.sleep(300L);
+        } catch (InterruptedException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+        }
     }
 }
