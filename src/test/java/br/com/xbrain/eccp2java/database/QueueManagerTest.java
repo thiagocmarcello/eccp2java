@@ -5,6 +5,7 @@ import br.com.xbrain.eccp2java.database.model.Queue;
 import br.com.xbrain.eccp2java.database.model.QueueConfig;
 import br.com.xbrain.eccp2java.database.model.QueueDetail;
 import br.com.xbrain.eccp2java.database.model.QueuesDetailPK;
+import br.com.xbrain.eccp2java.enums.EConfiguracao;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 /**
  *
@@ -33,7 +33,7 @@ public class QueueManagerTest {
 
     public QueueManagerTest() {
     }
-    
+
     private ElastixEMFs elastixEMFs;
 
     @BeforeClass
@@ -47,21 +47,18 @@ public class QueueManagerTest {
     @Before
     public void setUp() {
         elastixEMFs = Mockito.mock(ElastixEMFs.class);
-        Mockito.when(elastixEMFs.getUrl()).then(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return "http://localhost:3306";
-            }
-        });
+        Mockito.when(elastixEMFs.getUrl()).then((InvocationOnMock invocation) -> "http://localhost:3306");
     }
 
     @After
     public void tearDown() {
     }
-    
+
     @Test
     public void testSaveInvalidQueue() {
-        QueueManager queueManager = QueueManager.create(elastixEMFs);
+        QueueManager queueManager = QueueManager.create(elastixEMFs,
+                EConfiguracao.IP_QUEUES_RELOAD + ":" + EConfiguracao.PORTA_QUEUES_RELOAD);
+
         try {
             queueManager.save(createInvalidQueue());
         } catch (ElastixIntegrationException ex) {
@@ -71,10 +68,12 @@ public class QueueManagerTest {
         }
         Assert.fail("Se chegou aqui é porque o teste acima falhou.");
     }
-    
+
     @Test
     public void testSaveInvalidQueueConfig() {
-        QueueManager queueManager = QueueManager.create(elastixEMFs);
+        QueueManager queueManager = QueueManager.create(elastixEMFs,
+                EConfiguracao.IP_QUEUES_RELOAD + ":" + EConfiguracao.PORTA_QUEUES_RELOAD);
+
         try {
             queueManager.save(createInvalidQueueConfig());
         } catch (ElastixIntegrationException ex) {
@@ -83,8 +82,8 @@ public class QueueManagerTest {
         }
         Assert.fail("Se chegou aqui é porque o teste acima falhou.");
     }
-    
-    @Test 
+
+    @Test
     public void testSave() {
         try {
             QueueManager queueManager = Mockito.mock(QueueManager.class);

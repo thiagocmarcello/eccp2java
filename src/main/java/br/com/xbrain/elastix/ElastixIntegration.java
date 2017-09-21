@@ -5,6 +5,7 @@ import br.com.xbrain.eccp2java.database.QueueManager;
 import br.com.xbrain.eccp2java.database.connection.ElastixEMFs;
 import br.com.xbrain.eccp2java.database.model.Campaign;
 import br.com.xbrain.eccp2java.database.model.Queue;
+import br.com.xbrain.eccp2java.enums.EConfiguracao;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -60,7 +61,7 @@ public class ElastixIntegration {
     }
 
     private QueueManager createQueueManager() {
-        return QueueManager.create(elastixEMFs);
+        return QueueManager.create(elastixEMFs, elastixHost.toString() + ":" + EConfiguracao.PORTA_QUEUES_RELOAD.getValor());
     }
 
     private CampaignManager createCampaignManager() {

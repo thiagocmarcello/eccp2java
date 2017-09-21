@@ -9,6 +9,7 @@ import br.com.xbrain.eccp2java.util.HttpUtils;
 import br.com.xbrain.eccp2java.util.HttpUtils.Param;
 import br.com.xbrain.elastix.DialerAgent;
 import java.math.BigInteger;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -33,12 +34,11 @@ public class QueueManager {
 
     private String endpoint;
 
-    public static QueueManager create(ElastixEMFs elastixEMFs) {
+    public static QueueManager create(ElastixEMFs elastixEMFs, String ipPortReloadQueue) {
         QueueManager queueManager = new QueueManager();
         queueManager.elastixEMFs = elastixEMFs;
         String newEndpoint
-                = EConfiguracao.IP_QUEUES_RELOAD.getValor()
-                + EConfiguracao.PORTA_QUEUES_RELOAD.getValor()
+                = ipPortReloadQueue
                 + EConfiguracao.URL_QUEUES_RELOAD.getValor();
         queueManager.endpoint = newEndpoint;
         return queueManager;
@@ -107,7 +107,7 @@ public class QueueManager {
         createQueueDAO().updateQueueAgents(queueId, agents);
         restartAsteriskQueues();
     }
-    
+
     public void deleteQueueAgents(String queueId, List<DialerAgent> agents) throws ElastixIntegrationException {
         createQueueDAO().deleteQueueAgents(queueId, agents);
         restartAsteriskQueues();

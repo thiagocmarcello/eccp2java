@@ -70,7 +70,7 @@ public class EccpClient implements IEccpCallback, Serializable {
 
     public synchronized AgentConsole createAgentConsole(String agentNumber, String password, Integer extension) throws EccpException {
         AgentConsole console = new AgentConsole(this, agentNumber, password, extension);
-        console.loginAgentConsole();
+        console.connectAgentConsole();
         loggedAgentConsoles.add(console);
         notify();
         return console;
