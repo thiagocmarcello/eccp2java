@@ -1,71 +1,44 @@
 target/
-
 *.iml
-
 .idea/
-
 src/main/resources/public/app
-
 log/
-
-
-
 nb-configuration.xml
 
 
-
 # Mac
-
 .DS_Store
-
 # Win
-
 Thumbs.db
-
 ehthumbs.db
-
 #IntelliJ
-
 .idea
 
-
-
 #yeoman
-
 # node_modules
-
 node_modules
-
 report
-
 coverage
-
 build
-
 tmp
 
-
-
 # Log files
-
 *.log
-
 
 
 ### Node ###
-
 # Logs
-
 logs
-
 *.log
 
 # Runtime data
-
 pids
-
 *.pid
-
 *.seed
 
+
+# Netbeans IDE
 /nbproject/
+nbactions.xml
+nb-configuration.xml
+nb_jr_remoting.cfg
