@@ -11,47 +11,11 @@ import lombok.Getter;
  */
 public class ElastixIntegrationException extends Exception {
 
-    public static ElastixIntegrationException create(Error error) {
-        return new ElastixIntegrationException(error, new Throwable("Ops"));
-    }
-
-    public static ElastixIntegrationException create(Error error, Throwable cause) {
-        return new ElastixIntegrationException(error, cause);
-    }
-
-    public static enum Error {
-        TX_EXECUTION_ERROR,
-        
-        CAMPAIGN_VALIDATION_ERROR,
-        CAMPAIGN_ALREADY_EXISTS,
-        CAN_NOT_SAVE_CAMPAIGN,
-        CAN_NOT_REMOVE_CAMPAIGN,
-        CAN_NOT_FIND_CAMPAIGN,
-        CAN_NOT_UPDATE_CAMPAIGN,
-        
-        QUEUE_NOT_FOUND,
-        QUEUE_VALIDATION_ERROR,
-        QUEUE_ALREADY_EXISTS,
-        CAN_NOT_SAVE_QUEUE,
-        CAN_NOT_REMOVE_QUEUE,
-        CAN_NOT_FIND_QUEUE,
-        CAN_NOT_UPDATE_QUEUE;
-    }
-
     @Getter
     private Map<String, Serializable> infos;
 
-    @Getter
-    private final Error error;
-
-    private ElastixIntegrationException(Error error) {
-        super(error.toString());
-        this.error = error;
-    }
-
-    private ElastixIntegrationException(Error error, Throwable cause) {
-        super(error.toString());
-        this.error = error;
+    public ElastixIntegrationException(String message, Throwable cause) {
+        super(message);
     }
 
     public ElastixIntegrationException addInfo(String key, Serializable value) {
@@ -65,7 +29,7 @@ public class ElastixIntegrationException extends Exception {
     /**
      * @see java.lang.String#format(java.lang.String, java.lang.Object...)
      */
-    public ElastixIntegrationException addInfo(String key, String message, String... params) {
+    public ElastixIntegrationException addInfo(String key, String message, Object... params) {
         if (message != null) {
             addInfo(key, String.format(message, params));
         }

@@ -1,15 +1,17 @@
 package br.com.xbrain.eccp2java.database;
 
+import br.com.xbrain.eccp2java.database.model.Ipv4;
 import br.com.xbrain.eccp2java.database.model.Queue;
 import br.com.xbrain.eccp2java.database.model.QueueConfig;
 import br.com.xbrain.eccp2java.database.connection.ElastixEMFs;
-import br.com.xbrain.eccp2java.enums.EConfiguracao;
+import br.com.xbrain.eccp2java.database.model.RestartQueueEndpoint;
+import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
 import br.com.xbrain.eccp2java.util.HttpUtils;
 import br.com.xbrain.eccp2java.util.HttpUtils.Param;
 import br.com.xbrain.elastix.DialerAgent;
 import java.math.BigInteger;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -22,32 +24,36 @@ import javax.validation.ValidationException;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-/**
- *
- * @author joaomassan@xbrain.com.br (xbrain)
- */
 public class QueueManager {
 
     private static final Logger LOG = Logger.getLogger(QueueManager.class.getName());
 
+    public static final String DIGEST_ALGORITHM = "SHA1";
+
     private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 
-    private String endpoint;
+    private RestartQueueEndpoint endpoint;
 
-    public static QueueManager create(ElastixEMFs elastixEMFs, String ipPortReloadQueue) {
-        QueueManager queueManager = new QueueManager();
-        queueManager.elastixEMFs = elastixEMFs;
-        String newEndpoint
-                = ipPortReloadQueue
-                + EConfiguracao.URL_QUEUES_RELOAD.getValor();
-        queueManager.endpoint = newEndpoint;
-        return queueManager;
+    public static QueueManager create(ElastixEMFs elastixEMFs, Ipv4 reloadQueueIp, int reloadQueuePort)
+            throws ElastixIntegrationException {
+
+        try {
+            QueueManager queueManager = new QueueManager();
+            queueManager.elastixEMFs = elastixEMFs;
+            queueManager.endpoint = RestartQueueEndpoint.create(
+                    RestartQueueEndpoint.Protocol.HTTP,
+                    reloadQueueIp,
+                    reloadQueuePort);
+
+            return queueManager;
+        } catch (URISyntaxException ex) {
+            throw new ElastixIntegrationException("Erro ao criar QueueManager", ex);
+        }
     }
 
     private ElastixEMFs elastixEMFs;
 
-    private QueueManager() {
-    }
+    private QueueManager() {}
 
     public Queue save(Queue queue) throws ElastixIntegrationException {
         try {
@@ -58,7 +64,7 @@ public class QueueManager {
             restartAsteriskQueues();
             return savedQueue;
         } catch (ValidationException | IllegalArgumentException ex) {
-            throw ElastixIntegrationException.create(ElastixIntegrationException.Error.CAN_NOT_SAVE_QUEUE, ex);
+            throw new ElastixIntegrationException("Não foi possível salvar a fila: " + ex.getMessage(), ex);
         }
     }
 
@@ -80,22 +86,20 @@ public class QueueManager {
         }
     }
 
-    public int restartAsteriskQueues() {
+    public void restartAsteriskQueues() throws ElastixIntegrationException {
         try {
-            byte[] hashArray = MessageDigest.getInstance("SHA1").digest("xbrain".getBytes());
+            byte[] hashArray = MessageDigest.getInstance(DIGEST_ALGORITHM).digest("xbrain".getBytes());
             String hash = new BigInteger(1, hashArray).toString(16);
-            int code = HttpUtils.doGetReturningStatusCode(endpoint, Param.create("hash", hash));
+            int code = HttpUtils.doGetReturningStatusCode(endpoint.toString(), Param.create("hash", hash));
             validateStatusCode(code);
-            return code;
         } catch (NoSuchAlgorithmException ex) {
-            LOG.log(Level.SEVERE, null, ex);
+            throw new ElastixIntegrationException("Não foi possível reiniciar as filas.", ex);
         }
-        return 500;
     }
 
-    private void validateStatusCode(int code) {
+    private void validateStatusCode(int code) throws ElastixIntegrationException {
         if (!(code >= 200 && code < 300)) {
-            throw new IllegalArgumentException("Request problem code: " + code);
+            throw new ElastixIntegrationException("Não foi possível reiniciar as filas. Código: " + code, null);
         }
     }
 
@@ -108,8 +112,8 @@ public class QueueManager {
         restartAsteriskQueues();
     }
 
-    public void deleteQueueAgents(String queueId, List<DialerAgent> agents) throws ElastixIntegrationException {
-        createQueueDAO().deleteQueueAgents(queueId, agents);
+    public void deleteQueueAgents(String queueId) throws ElastixIntegrationException {
+        createQueueDAO().deleteQueueAgents(queueId);
         restartAsteriskQueues();
     }
 }

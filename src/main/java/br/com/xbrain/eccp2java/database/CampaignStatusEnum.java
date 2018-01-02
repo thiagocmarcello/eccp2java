@@ -7,12 +7,13 @@ import lombok.Getter;
  * @author joaomassan@xbrain.com.br (xbrain)
  */
 enum CampaignStatusEnum {
+
     ACTIVE("A"), INACTIVE("I");
 
     @Getter
     String value;
 
-    private CampaignStatusEnum(String value) {
+    CampaignStatusEnum(String value) {
         this.value = value;
     }
 

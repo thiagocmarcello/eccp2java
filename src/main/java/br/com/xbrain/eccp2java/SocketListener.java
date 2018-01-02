@@ -38,7 +38,7 @@ public class SocketListener implements Runnable {
         this.callback = callback;
     }
 
-    public void connect() throws EccpException {
+    void connect() throws EccpException {
         socketConnection = SocketConnection.create(elastix);
         socketConnection.connect();
         login();

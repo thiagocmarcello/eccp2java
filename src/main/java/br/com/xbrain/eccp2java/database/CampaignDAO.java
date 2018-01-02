@@ -2,13 +2,15 @@ package br.com.xbrain.eccp2java.database;
 
 import br.com.xbrain.eccp2java.database.model.Campaign;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
-import java.util.List;
-import java.util.logging.Logger;
+import br.com.xbrain.elastix.ElastixIntegration;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
@@ -38,7 +40,7 @@ public class CampaignDAO extends AbstractDAO<Campaign, Integer> {
             em.persist(campaign);
             em.getTransaction().commit();
         } catch (PersistenceException ex) {
-            throw ElastixIntegrationException.create(ElastixIntegrationException.Error.CAN_NOT_SAVE_CAMPAIGN, ex);
+            throw new ElastixIntegrationException("Nâo foi possível salvar a campanaha", ex);
         } finally {
             em.close();
         }
@@ -54,7 +56,7 @@ public class CampaignDAO extends AbstractDAO<Campaign, Integer> {
             em.remove(mergedCampaign);
             em.getTransaction().commit();
         } catch (PersistenceException ex) {
-            throw ElastixIntegrationException.create(ElastixIntegrationException.Error.CAN_NOT_REMOVE_CAMPAIGN, ex);
+            throw new ElastixIntegrationException("Não foi possível remover a campanha: " + campaign.getId(), ex);
         } finally {
             em.close();
         }
@@ -69,19 +71,19 @@ public class CampaignDAO extends AbstractDAO<Campaign, Integer> {
             em.getTransaction().commit();
             return mergedCampaign;
         } catch (PersistenceException ex) {
-            throw ElastixIntegrationException.create(ElastixIntegrationException.Error.CAN_NOT_UPDATE_CAMPAIGN, ex);
+            throw new ElastixIntegrationException("Não foi possível atualizar a campanha: " + campaign.getId(), ex);
         } finally {
             em.close();
         }
     }
 
     @Override
-    public Campaign find(Integer pk) throws ElastixIntegrationException {
+    public Campaign find(Integer id) throws ElastixIntegrationException {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.find(Campaign.class, pk);
+            return em.find(Campaign.class, id);
         } catch (PersistenceException ex) {
-            throw ElastixIntegrationException.create(ElastixIntegrationException.Error.CAN_NOT_FIND_CAMPAIGN, ex);
+            throw new ElastixIntegrationException("Não foi possível encontrar a campanha: " + id, ex);
         } finally {
             em.close();
         }
@@ -90,9 +92,10 @@ public class CampaignDAO extends AbstractDAO<Campaign, Integer> {
     public List<Campaign> getActives() throws ElastixIntegrationException {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("SELECT c FROM Campaign c WHERE c.estatus = 'A'").getResultList();
+            return em.createQuery("SELECT c FROM Campaign c WHERE c.estatus = 'A'", Campaign.class)
+                    .getResultList();
         } catch (PersistenceException ex) {
-            throw ElastixIntegrationException.create(ElastixIntegrationException.Error.CAN_NOT_FIND_CAMPAIGN, ex);
+            throw new ElastixIntegrationException("Não foi possível carregar as campanhas.", ex);
         } finally {
             em.close();
         }
@@ -101,11 +104,24 @@ public class CampaignDAO extends AbstractDAO<Campaign, Integer> {
     public List<Campaign> findPorQueue(String idQueue) throws ElastixIntegrationException {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("SELECT c FROM Campaign c WHERE c.queue = '" + idQueue + "'").getResultList();
+            return em.createQuery("SELECT c FROM Campaign c WHERE c.queue = :_idQueue", Campaign.class)
+                    .setParameter("_idQueue", idQueue)
+                    .getResultList();
         } catch (PersistenceException ex) {
-            throw ElastixIntegrationException.create(ElastixIntegrationException.Error.CAN_NOT_FIND_CAMPAIGN, ex);
+            throw new ElastixIntegrationException("Não foi possível encontrar a campanha da fila: " + idQueue, ex);
         } finally {
             em.close();
         }
+    }
+
+    public Campaign findLast() throws ElastixIntegrationException {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT MAX(c) FROM Campaign c WHERE c.estatus = 'A'", Campaign.class)
+                    .getSingleResult();
+        } catch(PersistenceException ex) {
+            throw new ElastixIntegrationException("Não foi possível consultar a última campanha", ex);
+        }
+
     }
 }

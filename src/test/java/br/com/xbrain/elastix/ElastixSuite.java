@@ -1,6 +1,6 @@
 package br.com.xbrain.elastix;
 
-import br.com.xbrain.eccp2java.enums.EConfiguracao;
+import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
@@ -47,7 +47,7 @@ public class ElastixSuite {
 
     @Test
     public void deveOPontoDeEntradaReceberOsDadosDeConexaoComOBancoDeDados() {
-        ElastixIntegration elastix = ElastixIntegration.create("http://myurl", "root", EConfiguracao.SENHA_BANCO.getValor());
+        ElastixIntegration elastix = ElastixIntegration.create("http://myurl", "root", EConfiguracaoDev.SENHA_BANCO.getValor());
         assertNotNull(elastix);
     }
 

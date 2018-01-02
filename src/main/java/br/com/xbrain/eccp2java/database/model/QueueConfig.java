@@ -1,5 +1,7 @@
 package br.com.xbrain.eccp2java.database.model;
 
+import lombok.Builder;
+
 import java.io.Serializable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -7,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import lombok.experimental.Builder;
 
 
 /**

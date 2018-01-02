@@ -1,29 +1,25 @@
 package br.com.xbrain.eccp2java.database;
 
 import br.com.xbrain.eccp2java.database.model.Queue;
-import br.com.xbrain.eccp2java.database.model.QueueDetail;
 import br.com.xbrain.eccp2java.database.model.QueueConfig;
+import br.com.xbrain.eccp2java.database.model.QueueDetail;
 import br.com.xbrain.eccp2java.database.model.QueuesDetailPK;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
 import br.com.xbrain.elastix.DialerAgent;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
-import javax.persistence.EntityExistsException;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceException;
 
-/**
- *
- * @author joaomassan@xbrain.com.br (xbrain)
- */
 public class QueueDAO extends AbstractDAO<Queue, String> {
 
     private static final Logger LOG = Logger.getLogger(QueueDAO.class.getName());
 
-    public static final QueueDAO create(EntityManagerFactory emf) {
+    public static QueueDAO create(EntityManagerFactory emf) {
         QueueDAO queueDAO = new QueueDAO();
         queueDAO.emf = emf;
         return queueDAO;
@@ -50,7 +46,7 @@ public class QueueDAO extends AbstractDAO<Queue, String> {
             return mergedQueue;
         } catch (PersistenceException ex) {
             entityManager.getTransaction().rollback();
-            throw ElastixIntegrationException.create(ElastixIntegrationException.Error.CAN_NOT_SAVE_QUEUE, ex);
+            throw new ElastixIntegrationException("Não foi possível salvar a fila: " + queue, ex);
         } finally {
             entityManager.close();
         }
@@ -68,7 +64,7 @@ public class QueueDAO extends AbstractDAO<Queue, String> {
             em.getTransaction().commit();
         } catch (Exception ex) {
             em.getTransaction().rollback();
-            throw ElastixIntegrationException.create(ElastixIntegrationException.Error.CAN_NOT_REMOVE_QUEUE, ex);
+            throw new ElastixIntegrationException("Não foi possível remover a fila.", ex);
         } finally {
             em.close();
         }
@@ -81,74 +77,71 @@ public class QueueDAO extends AbstractDAO<Queue, String> {
     }
 
     @Override
-    public Queue find(String pk) throws ElastixIntegrationException {
+    public Queue find(String id) throws ElastixIntegrationException {
         EntityManager em = emf.createEntityManager();
         try {
-            QueueConfig queueConfig = em.find(QueueConfig.class, pk);
+            QueueConfig queueConfig = em.find(QueueConfig.class, id);
             if (queueConfig == null) {
-                throw ElastixIntegrationException.create(ElastixIntegrationException.Error.QUEUE_NOT_FOUND)
-                        .addInfo("message", "A fila '%s' não foi encontrada.", pk);
+                throw new ElastixIntegrationException("Fila não encontrada", null)
+                        .addInfo("message", "A fila '%s' não foi encontrada.", id);
             }
 
             List<QueueDetail> queueDetails
-                    = em.createQuery("SELECT qd FROM QueueDetail qd WHERE qd.queuesDetailsPK.id = :_queueId")
+                    = em.createQuery(
+                    "SELECT qd FROM QueueDetail qd WHERE qd.queuesDetailsPK.id = :_queueId",
+                    QueueDetail.class)
                     .setParameter("_queueId", queueConfig.getExtension())
                     .getResultList();
 
             return new Queue(queueConfig, queueDetails);
         } catch (PersistenceException ex) {
-            em.getTransaction().rollback();
-            throw ElastixIntegrationException.create(ElastixIntegrationException.Error.CAN_NOT_FIND_QUEUE, ex)
-                    .addInfo("message", "Houve um erro buscando a fila especificada");
+            throw new ElastixIntegrationException("Não foi possível encontrar a fila: " + id, ex);
         } finally {
             em.close();
         }
     }
 
-    public void updateQueueAgents(final String queueId, final List<DialerAgent> agents) throws ElastixIntegrationException {
+    public void updateQueueAgents(final String queueId, final List<DialerAgent> agents)
+            throws ElastixIntegrationException {
+
         final EntityManager em = emf.createEntityManager();
 
-        Callable deleteAgents = new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                em.createQuery("DELETE FROM QueueDetail qd WHERE qd.queuesDetailsPK.keyword = :_keyword AND qd.queuesDetailsPK.id = :_id ")
-                        .setParameter("_keyword", "member")
-                        .setParameter("_id", queueId)
-                        .executeUpdate();
-                return null;
-            }
+        Callable deleteAgents = (Callable<Void>) () -> {
+            em.createQuery("DELETE FROM QueueDetail qd "
+                    + "WHERE qd.queuesDetailsPK.keyword = :_keyword "
+                    + "AND qd.queuesDetailsPK.id = :_id ")
+                    .setParameter("_keyword", "member")
+                    .setParameter("_id", queueId)
+                    .executeUpdate();
+            return null;
         };
 
-        Callable insertAgents = new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                for (DialerAgent agent : agents) {
-                    QueuesDetailPK pk = new QueuesDetailPK(queueId, "member", agent.getElaxtixNameWithPenalty());
-                    QueueDetail queueDetail = new QueueDetail(pk);
-                    queueDetail.setFlags(0);
-                    em.persist(queueDetail);
-                }
-
-                return null;
+        Callable insertAgents = (Callable<Void>) () -> {
+            for (DialerAgent agent : agents) {
+                QueuesDetailPK pk = new QueuesDetailPK(queueId, "member", agent.getElaxtixNameWithPenalty());
+                QueueDetail queueDetail = new QueueDetail(pk);
+                queueDetail.setFlags(0);
+                em.persist(queueDetail);
             }
+
+            return null;
         };
 
-        executeTransactional(em, deleteAgents, insertAgents);
+        executeInTransaction(em, deleteAgents, insertAgents);
     }
 
-    public void deleteQueueAgents(final String queueId, final List<DialerAgent> agents) throws ElastixIntegrationException {
-        final EntityManager em = emf.createEntityManager();
-
-        Callable deleteAgents = new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                em.createQuery("DELETE FROM QueueDetail qd WHERE qd.queuesDetailsPK.keyword = :_keyword AND qd.queuesDetailsPK.id = :_id ")
-                        .setParameter("_keyword", "member")
-                        .setParameter("_id", queueId)
-                        .executeUpdate();
-                return null;
-            }
+    public void deleteQueueAgents(final String queueId) throws ElastixIntegrationException {
+        EntityManager em = emf.createEntityManager();
+        Callable deleteAgents = (Callable<Void>) () -> {
+            em.createQuery("DELETE FROM QueueDetail qd "
+                    + "WHERE qd.queuesDetailsPK.keyword = :_keyword "
+                    + "AND qd.queuesDetailsPK.id = :_id ")
+                    .setParameter("_keyword", "member")
+                    .setParameter("_id", queueId)
+                    .executeUpdate();
+            return null;
         };
-        executeTransactional(em, deleteAgents);
+
+        executeInTransaction(em, deleteAgents);
     }
 }

@@ -1,9 +1,9 @@
 package br.com.xbrain.eccp2java.database;
 
-import br.com.xbrain.eccp2java.database.connection.ElastixEMFs;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
-import java.util.concurrent.Callable;
+
 import javax.persistence.EntityManager;
+import java.util.concurrent.Callable;
 
 
 /**
@@ -12,7 +12,7 @@ import javax.persistence.EntityManager;
  */
 public abstract class AbstractDAO<T, P> {
 
-    protected AbstractDAO() {}
+    AbstractDAO() {}
     
     public abstract T create(T object) throws ElastixIntegrationException;
     
@@ -22,7 +22,7 @@ public abstract class AbstractDAO<T, P> {
     
     public abstract void remove(T object) throws ElastixIntegrationException;
     
-    protected void executeTransactional(EntityManager em, Callable<Void>... callables) throws ElastixIntegrationException {
+    protected void executeInTransaction(EntityManager em, Callable<Void>... callables) throws ElastixIntegrationException {
         try {
             em.getTransaction().begin();
             for(Callable callable : callables) {
@@ -30,8 +30,7 @@ public abstract class AbstractDAO<T, P> {
             }
             em.getTransaction().commit();
         } catch(Exception ex) {
-            em.getTransaction().rollback();
-            throw ElastixIntegrationException.create(ElastixIntegrationException.Error.TX_EXECUTION_ERROR, ex);
+            throw new ElastixIntegrationException("Erro ao executar a transação", ex);
         } finally {
             em.close();
         }

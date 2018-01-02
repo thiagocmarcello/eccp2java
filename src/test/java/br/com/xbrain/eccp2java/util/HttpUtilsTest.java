@@ -17,54 +17,54 @@ import static org.junit.Assert.*;
  * @author xbrain
  */
 public class HttpUtilsTest {
-    
+
     public HttpUtilsTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
 
-//    @Test
+    //    @Test
     public void shouldDoAPostRequestReturningHttpResponseCode() {
         int responseCode = HttpUtils.doPostReturningStatusCode("http://localhost");
-        assertEquals(200, responseCode);    
+        assertEquals(200, responseCode);
     }
-    
-//    @Test
+
+    //    @Test
     public void shouldPostReturnA404() {
         int responseCode = HttpUtils.doPostReturningStatusCode("http://localhost/naoexiste");
         assertEquals(404, responseCode);
     }
-    
-//    @Test(expected = IllegalArgumentException.class)
+
+    //    @Test(expected = IllegalArgumentException.class)
     public void shouldPostNotAcceptNull() {
         HttpUtils.doPostReturningStatusCode(null);
     }
-    
-//    @Test(expected = IllegalArgumentException.class)
+
+    //    @Test(expected = IllegalArgumentException.class)
     public void shouldPostNotAcceptBlank() {
         HttpUtils.doPostReturningStatusCode("");
     }
-    
-//    @Test(expected = IllegalArgumentException.class)
+
+    //    @Test(expected = IllegalArgumentException.class)
     public void shouldPostNotAcceptWhiteSpaces() {
         HttpUtils.doPostReturningStatusCode("       ");
     }
-    
-//    @Test
+
+    //    @Test
     public void shouldPostUrlStartsWithHttpOrHttps() {
         HttpUtils.doPostReturningStatusCode("http://www.google.com.br");
         HttpUtils.doPostReturningStatusCode("https://www.google.com.br");
@@ -75,52 +75,54 @@ public class HttpUtilsTest {
         }
     }
 
-//    @Test
+    //    @Test
     public void deveOMetodoGetRetornarCodigoValido() {
-       assertEquals(200, HttpUtils.doGetReturningStatusCode("http://localhost", HttpUtils.Param.EMPTY));
+        assertEquals(200, HttpUtils.doGetReturningStatusCode("http://localhost", HttpUtils.Param.EMPTY));
     }
-    
-//    @Test
+
+    //    @Test
     public void deveOMetodoGetAceitarParametros() {
         assertEquals(200, HttpUtils.doGetReturningStatusCode("http://localhost", HttpUtils.Param.EMPTY));
     }
-    
-//    @Test(expected = IllegalArgumentException.class)
+
+    //    @Test(expected = IllegalArgumentException.class)
     public void deveOMetodoGetNaoAceitarParametrosNull() {
-        assertNotEquals(200, HttpUtils.doGetReturningStatusCode("http://localhost", null));
+        assertNotEquals(200, HttpUtils.doGetReturningStatusCode(
+                "http://localhost",
+                HttpUtils.Param.EMPTY));
     }
- 
-//    @Test(expected = IllegalArgumentException.class)
+
+    //    @Test(expected = IllegalArgumentException.class)
     public void deveOMetodoGetAceitarURIValida() {
         assertEquals(200, HttpUtils.doGetReturningStatusCode("http://localhost", HttpUtils.Param.EMPTY));
         assertNotEquals(200, HttpUtils.doGetReturningStatusCode("um endereco inválido", HttpUtils.Param.EMPTY));
     }
-    
-//    @Test
+
+    //    @Test
     public void deveOMetodoGetAceitarVariosParametros() {
         HttpUtils.Param param1 = HttpUtils.Param.create("chave", "valor");
         HttpUtils.Param param2 = HttpUtils.Param.create("chave", "valor");
         assertEquals(200, HttpUtils.doGetReturningStatusCode("http://localhost", param1, param2));
     }
-    
-//    @Test
+
+    //    @Test
     public void deveOMetodoGetNaoExigirParametros() {
         assertEquals(200, HttpUtils.doGetReturningStatusCode("http://localhost"));
     }
-    
-//    @Test
+
+    //    @Test
     public void deveOMetodoGetAceitarHttps() {
         assertEquals(200, HttpUtils.doGetReturningStatusCode("https://www.google.com.br"));
     }
-    
+
     @Test // TODO mover para a classe de teste adqueada e renomear para 'deveReiniciarOAsterisk'
     public void deveOMetodoGetInvocarAURL() {
-        int code = HttpUtils.doGetReturningStatusCode("https://192.168.1.23:26000/modules/queues/reload.php", 
+        int code = HttpUtils.doGetReturningStatusCode("https://192.168.1.23:26000/modules/queues/reload.php",
                 HttpUtils.Param.create("hash", "9cbb0bd1a5114bd876ce5680af684e6b18b8d096"));
         assertEquals(200, code);
     }
-    
-//    @Test
+
+    //    @Test
     public void deveGerarOHashSha1DoParametro() {
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA1");

@@ -48,7 +48,7 @@ public class CampaignManagerTest {
 
     @Test
     public void testCreate() {
-        System.out.println("create");
+        System.out.println("of");
         ElastixEMFs eccp2JavaEMF = Mockito.mock(ElastixEMFs.class);
         CampaignManager campaign = CampaignManager.create(eccp2JavaEMF);
         assertNotNull(campaign);

@@ -5,7 +5,7 @@ import br.com.xbrain.eccp2java.entity.xml.Elastix;
 import br.com.xbrain.eccp2java.entity.xml.EccpLoginAgentResponse;
 import br.com.xbrain.eccp2java.entity.xml.EccpLogoutAgentResponse;
 import br.com.xbrain.eccp2java.entity.xml.IEccpEvent;
-import br.com.xbrain.eccp2java.enums.EConfiguracao;
+import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
 import br.com.xbrain.elastix.DialerCampaign;
 import br.com.xbrain.elastix.ElastixIntegration;
@@ -29,10 +29,10 @@ public class App {
 
     public static void __main(String[] args) throws ElastixIntegrationException {
         ElastixIntegration elastix = ElastixIntegration.create(
-                EConfiguracao.IP_BANCO.getValor()
-                + EConfiguracao.PORTA_BANCO.getValor(),
-                EConfiguracao.USUARIO_BANCO.getValor(),
-                EConfiguracao.SENHA_BANCO.getValor());
+                EConfiguracaoDev.IP_BANCO.getValor() + EConfiguracaoDev.PORTA_BANCO.getValor(),
+                EConfiguracaoDev.USUARIO_BANCO.getValor(),
+                EConfiguracaoDev.SENHA_BANCO.getValor());
+        
         List<DialerCampaign> dialerCampaigns = elastix.getActiveDialerCampaigns();
         if (CollectionUtils.isNotEmpty(dialerCampaigns)) {
             System.out.println("Quantidade de campanhas ativas: " + dialerCampaigns.size());
@@ -51,7 +51,7 @@ public class App {
             Elastix elastix = Elastix.create("192.168.1.22", 20005, "discadora", "teste");
             EccpClient eccp = new EccpClient(elastix);
             eccp.startSocketListener();
-            eccp.addEventListener(null, new IEccpEventListener() {
+            eccp.addEventListener(null, new IEccpEventListener<IEccpEvent>() {
 
                 @Override
                 public void onEvent(IEccpEvent event) {
@@ -70,7 +70,7 @@ public class App {
 
             pause("Pressione qualquer tecla para criar a campanha");
 
-            AppTest.createDialerCampaign(25);
+            //AppTest.createDialerCampaign(25);
 
             pause("Pressione qualquer tecla para fazer o login novamente");
 

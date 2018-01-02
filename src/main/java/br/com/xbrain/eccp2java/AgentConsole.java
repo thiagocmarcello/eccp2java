@@ -15,10 +15,6 @@ import java.util.logging.Logger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-/**
- *
- * @author joaomassan@xbrain.com.br (xbrain)
- */
 @EqualsAndHashCode(of = "agentNumber")
 public class AgentConsole {
 
@@ -30,10 +26,10 @@ public class AgentConsole {
 
     private long requestId = 1L;
 
+    private final String password;
+
     @Getter
     private final String agentNumber;
-
-    private final String password;
 
     @Getter
     private final Integer extension;
@@ -55,7 +51,7 @@ public class AgentConsole {
         return ++requestId;
     }
 
-    private void connect() throws EccpException {
+    private void connectEccp() throws EccpException {
         LOG.log(Level.INFO, "Connecting agent: {0}.", agentNumber);
         this.connection = eccp.connect();
     }
@@ -72,7 +68,7 @@ public class AgentConsole {
     }
 
     public EccpLoginResponse connectAgentConsole() throws EccpException {
-        connect();
+        connectEccp();
         EccpLoginRequest request = EccpLoginRequest.create(
                 eccp.getElastix().getUser(),
                 eccp.getElastix().getPassword());

@@ -13,15 +13,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 
-/**
- *
- * @author joaomassan@xbrain.com.br
- */
+
 public class EccpClient implements IEccpCallback, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = Logger.getLogger(EccpClient.class.getName());
 
-    private final Map<Class<? extends IEccpEvent>, Set<IEccpEventListener>> eventListeners = new HashMap<>();
+    private final Map<Class<? extends IEccpEvent>, Set<IEccpEventListener<IEccpEvent>>> eventListeners = new HashMap<>();
 
     private final Set<AgentConsole> loggedAgentConsoles = new HashSet<>();
 
@@ -76,7 +75,7 @@ public class EccpClient implements IEccpCallback, Serializable {
         return console;
     }
 
-    public void addEventListener(Class<? extends IEccpEvent> clss, IEccpEventListener listener) {
+    public void addEventListener(Class<? extends IEccpEvent> clss, IEccpEventListener<IEccpEvent> listener) {
         synchronized (eventListeners) {
             if (!eventListeners.containsKey(clss)) {
                 eventListeners.put(clss, new HashSet<>());
@@ -85,10 +84,11 @@ public class EccpClient implements IEccpCallback, Serializable {
         }
     }
 
-    public void removeEventListener(Class<? extends IEccpEvent> clss, IEccpEventListener listener) {
+    public void removeEventListener(Class<? extends IEccpEvent> clss, IEccpEventListener<IEccpEvent> listener) {
         if (eventListeners.containsKey(clss)) {
-            for (Iterator<IEccpEventListener> it = eventListeners.get(clss).iterator(); it.hasNext();) {
-                if (it.equals(listener)) {
+            for (Iterator<IEccpEventListener<IEccpEvent>> it = eventListeners.get(clss).iterator(); it.hasNext();) {
+                IEccpEventListener<IEccpEvent> current = it.next();
+                if (current.equals(listener)) {
                     it.remove();
                 }
             }
