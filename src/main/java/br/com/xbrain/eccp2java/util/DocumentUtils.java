@@ -30,13 +30,13 @@ public class DocumentUtils {
 
     private static final Logger LOG = Logger.getLogger(DocumentUtils.class.getName());
     
-    public static final DocumentBuilderFactory DOCUMENT_BUILD_FACTORY = DocumentBuilderFactory.newInstance();
+    private static final DocumentBuilderFactory DOCUMENT_BUILD_FACTORY = DocumentBuilderFactory.newInstance();
 
     public static Document parseDocument(InputStream inputStream) throws EccpException {
         try {
             return createDocumentBuilder().parse(inputStream);
         } catch (SAXException | IOException ex) {
-            throw EccpException.create(EccpException.Error.CAN_NOT_CREATE_DOCUMENT, ex);
+            throw new EccpException("Não foi possível ler o documento a paprtir do inputStream", ex);
         }
     }
     
@@ -44,7 +44,7 @@ public class DocumentUtils {
         try {
             return createDocumentBuilder().parse(new ByteArrayInputStream(xml.getBytes()));
         } catch (SAXException | IOException ex) {
-            throw EccpException.create(EccpException.Error.CAN_NOT_CREATE_DOCUMENT, ex);
+            throw new EccpException("Não foi possível criar o documento a partir do String", ex);
         }
     }
 

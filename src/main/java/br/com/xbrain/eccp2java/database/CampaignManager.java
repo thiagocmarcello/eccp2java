@@ -7,10 +7,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 // TODO gerar teste para verificar se o form padrão existe
-/**
- *
- * @author joaomassan@xbrain.com.br (xbrain)
- */
 public class CampaignManager extends AbstractManager {
 
     private static final Logger LOG = Logger.getLogger(CampaignManager.class.getName());
@@ -23,7 +19,7 @@ public class CampaignManager extends AbstractManager {
         super(elastixEMFs);
     }
 
-    // Por enquanto usará somente o form padrão da discadora (o único) cujo o id = 1;
+    // FIXME Por enquanto usará somente o form padrão da discadora (o único) cujo o id = 1;
     public Campaign save(Campaign campaign) throws ElastixIntegrationException {
         if(campaign.getId() == null) {
             return createCampaignDAO().create(campaign);
@@ -50,5 +46,9 @@ public class CampaignManager extends AbstractManager {
     
     public List<Campaign> hasCampaign(String idQueue) throws ElastixIntegrationException {
         return createCampaignDAO().findPorQueue(idQueue);
+    }
+
+    public Campaign findLast() throws ElastixIntegrationException {
+        return createCampaignDAO().findLast();
     }
 }

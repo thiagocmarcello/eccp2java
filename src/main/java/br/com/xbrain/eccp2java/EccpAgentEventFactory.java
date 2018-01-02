@@ -12,10 +12,6 @@ import javax.xml.bind.Unmarshaller;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- *
- * @author joaomassan@xbrain.com.br
- */
 public class EccpAgentEventFactory {
 
     private static final Logger LOG = Logger.getLogger(EccpAgentEventFactory.class.getName());

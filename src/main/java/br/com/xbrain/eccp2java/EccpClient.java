@@ -1,33 +1,27 @@
 package br.com.xbrain.eccp2java;
 
-import br.com.xbrain.eccp2java.entity.xml.Elastix;
+import br.com.xbrain.eccp2java.entity.xml.*;
 import br.com.xbrain.eccp2java.exception.EccpException;
-import br.com.xbrain.eccp2java.entity.xml.IEccpEvent;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.Getter;
 
-/**
- *
- * @author joaomassan@xbrain.com.br
- */
-public class EccpClient implements IEccpCallback, Serializable {
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
+
+    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = Logger.getLogger(EccpClient.class.getName());
 
-    private final Map<Class<? extends IEccpEvent>, Set<IEccpEventListener>> eventListeners = new HashMap<>();
+    private final Map<Class<? extends IEccpEvent>, Set<IEccpEventListener<IEccpEvent>>> eventListeners = new HashMap<>();
 
     private final Set<AgentConsole> loggedAgentConsoles = new HashSet<>();
 
-    private SocketListener socketListener;
-
-    private Thread thread;
+    private SocketConnection socketConnection;
 
     @Getter
     private final Elastix elastix;
@@ -37,46 +31,30 @@ public class EccpClient implements IEccpCallback, Serializable {
         this.elastix = elastix;
     }
 
-    public final boolean isStarted() {
-        return socketListener != null && socketListener.isConnected();
+    public final boolean isConnected() {
+        return socketConnection != null && socketConnection.isConnected();
     }
 
-    public final void startSocketListener() throws EccpException {
-        LOG.info("Iniciando SocketListener...");
-        if (thread != null && thread.isAlive()) {
-            throw new IllegalStateException("O listener já foi iniciado");
-        }
 
-        if (socketListener == null) {
-            socketListener = SocketListener.create(elastix, this);
-            socketListener.connect();
-        }
-
-        thread = new Thread(socketListener);
-        thread.start();
-    }
-
-    public SocketConnection connect() throws EccpException {
+    public void connect() throws EccpException {
         LOG.info("Criando socket de conexão...");
-        SocketConnection socketConnection = SocketConnection.create(elastix);
-        socketConnection.connect();
-        return socketConnection;
+        socketConnection = SocketConnection.connect(this);
     }
 
-    public void disconnect() throws EccpException {
-        LOG.info("Encerrando EccpClient");
-        socketListener.stop();
-    }
-
-    public synchronized AgentConsole createAgentConsole(String agentNumber, String password, Integer extension) throws EccpException {
-        AgentConsole console = new AgentConsole(this, agentNumber, password, extension);
-        console.connectAgentConsole();
+    public synchronized AgentConsole createAgentConsole(String agentNumber, String password, Integer extension)
+            throws EccpException {
+        AgentConsole console = new AgentConsole(
+                this,
+                agentNumber,
+                password,
+                extension,
+                socketConnection.getAppCookie());
         loggedAgentConsoles.add(console);
         notify();
         return console;
     }
 
-    public void addEventListener(Class<? extends IEccpEvent> clss, IEccpEventListener listener) {
+    public void addEventListener(Class<? extends IEccpEvent> clss, IEccpEventListener<IEccpEvent> listener) {
         synchronized (eventListeners) {
             if (!eventListeners.containsKey(clss)) {
                 eventListeners.put(clss, new HashSet<>());
@@ -85,16 +63,18 @@ public class EccpClient implements IEccpCallback, Serializable {
         }
     }
 
-    public void removeEventListener(Class<? extends IEccpEvent> clss, IEccpEventListener listener) {
+    public void removeEventListener(Class<? extends IEccpEvent> clss, IEccpEventListener<IEccpEvent> listener) {
         if (eventListeners.containsKey(clss)) {
-            for (Iterator<IEccpEventListener> it = eventListeners.get(clss).iterator(); it.hasNext();) {
-                if (it.equals(listener)) {
+            for (Iterator<IEccpEventListener<IEccpEvent>> it = eventListeners.get(clss).iterator(); it.hasNext(); ) {
+                IEccpEventListener<IEccpEvent> current = it.next();
+                if (current.equals(listener)) {
                     it.remove();
                 }
             }
         }
     }
 
+    // FIXME propagar o evento se for do agente e foda-se o mundo.
     private void fireEvent(IEccpEvent event) {
         if (eventListeners.containsKey(null)) {
             eventListeners.get(null).forEach((item) -> {
@@ -109,8 +89,12 @@ public class EccpClient implements IEccpCallback, Serializable {
         }
     }
 
+    public IEccpResponse send(IEccpRequest request) throws EccpException {
+        return socketConnection.send(request);
+    }
+
     @Override
-    public void sendEvent(IEccpEvent event) {
+    public void onEvent(IEccpEvent event) {
         fireEvent(event);
     }
 
@@ -119,7 +103,7 @@ public class EccpClient implements IEccpCallback, Serializable {
 
         synchronized (loggedAgentConsoles) {
             boolean removed = loggedAgentConsoles.remove(agentConsole);
-            LOG.info(removed ? "Removido." : "Não removido.");
+            LOG.info(removed ? "Removido" : "Não removido");
         }
     }
 
@@ -128,11 +112,21 @@ public class EccpClient implements IEccpCallback, Serializable {
         LOG.info("Sincronizando agentConsoles...");
         if (loggedAgentConsoles.stream().filter(AgentConsole::isConnected).count() == 0) {
             try {
-                LOG.info("SocketListener waiting.");
+                LOG.info("SocketReaderAgent waiting");
                 wait();
             } catch (InterruptedException ex) {
                 LOG.log(Level.SEVERE, null, ex);
             }
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            LOG.info("Encerrando EccpClient");
+            socketConnection.close();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Problema ao encerrar SocketReaderAgent: " + ex.getMessage(), ex);
         }
     }
 }

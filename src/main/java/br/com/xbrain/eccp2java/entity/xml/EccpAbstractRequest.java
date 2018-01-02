@@ -8,19 +8,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-
-/**
- *
- * @author joaomassan@xbrain.com.br (xbrain)
- */
 @ToString
 @EqualsAndHashCode
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class EccpAbstractRequest implements IEccpRequest {
-    
+
     @Getter
-    @Setter
     @XmlTransient
-    protected Long id;
+    protected final Long id = SerialRequestIdGenerator.nextId();
 
 }

@@ -1,12 +1,8 @@
 package br.com.xbrain.eccp2java;
 
+import br.com.xbrain.eccp2java.entity.xml.IEccpEvent;
 import br.com.xbrain.eccp2java.exception.EccpException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 
 /**
@@ -48,14 +44,14 @@ public class EccpTest {
         EccpClient eccp = Mockito.mock(EccpClient.class);
         IEccpEventListener event = Mockito.mock(IEccpEventListener.class);
         eccp.addEventListener(null, event);
-        Mockito.verify(eccp).addEventListener(null, event);
+        Mockito.verify(eccp).addEventListener( null, event);
     }
     
     @Test
     public void shouldCreateAgentConsole() throws EccpException {
         EccpClient eccp = Mockito.mock(EccpClient.class);
         Mockito.when(eccp.createAgentConsole(AGENT_NUMBER, PASSWORD, EXTENSION))
-                .thenReturn(new AgentConsole(eccp, AGENT_NUMBER, PASSWORD, EXTENSION));
+                .thenReturn(new AgentConsole(eccp, AGENT_NUMBER, PASSWORD, EXTENSION, "APP_COOKIE"));
         AgentConsole console = eccp.createAgentConsole(AGENT_NUMBER, PASSWORD, EXTENSION);
         Mockito.verify(eccp).createAgentConsole(AGENT_NUMBER, PASSWORD, EXTENSION);
         Assert.assertNotNull(console);

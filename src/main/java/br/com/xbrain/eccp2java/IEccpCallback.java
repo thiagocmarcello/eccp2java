@@ -8,7 +8,7 @@ import br.com.xbrain.eccp2java.entity.xml.IEccpEvent;
  */
 public interface IEccpCallback {
 
-    void sendEvent(IEccpEvent event);
+    void onEvent(IEccpEvent event);
     
     void checkAgentConsoles();
 }

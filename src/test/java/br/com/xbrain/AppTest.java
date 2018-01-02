@@ -1,5 +1,9 @@
-package br.com.xbrain.eccp2java;
+package br.com.xbrain;
 
+import br.com.xbrain.eccp2java.AgentConsole;
+import br.com.xbrain.eccp2java.App;
+import br.com.xbrain.eccp2java.EccpClient;
+import br.com.xbrain.eccp2java.IEccpEventListener;
 import br.com.xbrain.eccp2java.database.CampaignContextEnum;
 import br.com.xbrain.eccp2java.database.model.Campaign;
 import br.com.xbrain.eccp2java.database.model.Queue;
@@ -10,7 +14,7 @@ import br.com.xbrain.eccp2java.entity.xml.Elastix;
 import br.com.xbrain.eccp2java.entity.xml.EccpLoginAgentResponse;
 import br.com.xbrain.eccp2java.entity.xml.EccpLogoutAgentResponse;
 import br.com.xbrain.eccp2java.entity.xml.IEccpEvent;
-import br.com.xbrain.eccp2java.enums.EConfiguracao;
+import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
 import br.com.xbrain.elastix.DialerAgent;
 import br.com.xbrain.elastix.Contact;
 import br.com.xbrain.elastix.DialerCampaign;
@@ -41,51 +45,32 @@ public class AppTest {
                 DialerAgent.create("Agent/8007", 3L)));
     }
 
-    public static void createDialerCampaign(int id) {
+    public static void createDialerCampaign(int id) throws ElastixIntegrationException {
         ElastixIntegration elastix = getElastixIntegration();
-        try {
-            List<Contact> contacts = Arrays.asList(Contact.create("8007", "1234"),
-                    Contact.create("8007", "234"), Contact.create("8007", "456"),
-                    Contact.create("8007", "342"), Contact.create("8007", "345"),
-                    Contact.create("8007", "342"), Contact.create("8007", "345"));
+        List<Contact> contacts = Arrays.asList(Contact.create("8007", "1234"),
+                Contact.create("8007", "234"), Contact.create("8007", "456"),
+                Contact.create("8007", "342"), Contact.create("8007", "345"),
+                Contact.create("8007", "342"), Contact.create("8007", "345"));
 
-            DialerCampaign dialerCampaign = DialerCampaign.builder()
-                    .identifiedBy(id)
-                    .named("Campanha " + id)
-                    .from(DateUtils.createDate(2016, 10, 27, 0, 0, 0, 0))
-                    .to(DateUtils.createDate(2016, 11, 27, 0, 0, 0, 0))
-                    .startingAt("08:00")
-                    .endingAt("20:30")
-                    .usingContext(CampaignContextEnum.FROM_INTERNAL)
-                    .showingScript("<b>Camapanha Willie</b>")
-                    .retrying(5)
-                    .dialingTo(contacts)
-                    .answeringWith(Arrays.asList(DialerAgent.create("Agent/8002", 1L), DialerAgent.create("Agent/8006", 2L)))
-                    .build();
+        DialerCampaign dialerCampaign = DialerCampaign.builder()
+                .identifiedBy(id)
+                .named("Campanha " + id)
+                .from(DateUtils.createDate(2018, 1, 1, 0, 0, 0, 0))
+                .to(DateUtils.createDate(2018, 1, 31, 0, 0, 0, 0))
+                .startingAt("08:00")
+                .endingAt("20:30")
+                .usingContext(CampaignContextEnum.FROM_INTERNAL)
+                .showingScript("<b>Camapanha Willie</b>")
+                .retrying(5)
+                .dialingTo(contacts)
+                .answeringWith(
+                        Arrays.asList(DialerAgent.create("Agent/8002", 1L),
+                                DialerAgent.create("Agent/8006", 2L)))
+                .build();
 
-            Campaign createdCampaign = elastix.createCampaign(dialerCampaign);
-            elastix.getCampaign(createdCampaign.getId());
-            elastix.getQueue(createdCampaign.getQueue());
-        } catch (ElastixIntegrationException ex) {
-            /* Suprimido porque pode não encontrar as entidades */
-        }
-
-//        try {
-//            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File("teste.out")));
-//            oos.writeObject(elastix);
-//            oos.flush();
-//            oos.close();
-//
-//            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File("teste.out")));
-//            elastix = (ElastixIntegration) ois.readObject();
-//            ois.close();
-//
-//            System.out.println("Campaign pós serialization " + elastix.getCampaign(96).toString());
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        } finally {
-//
-//        }
+        Campaign createdCampaign = elastix.createCampaign(dialerCampaign);
+        elastix.getCampaign(createdCampaign.getId());
+        elastix.getQueue(createdCampaign.getQueue());
     }
 
     public static void _main(String[] args) throws ElastixIntegrationException {
@@ -124,13 +109,7 @@ public class AppTest {
 
             Elastix elastix = Elastix.create("192.168.1.23", 20005, "discadora", "teste1");
             EccpClient eccp = new EccpClient(elastix);
-            eccp.addEventListener(null, new IEccpEventListener() {
-
-                @Override
-                public void onEvent(IEccpEvent event) {
-                    System.out.println("\tevent: " + event);
-                }
-            });
+            eccp.addEventListener(null, (IEccpEventListener) event -> System.out.println("\tevent: " + event));
 
             AgentConsole console = eccp.createAgentConsole(AGENT, PASSWORD, EXTEN);
             EccpLoginAgentResponse loginResponse = console.loginAgent();
@@ -139,8 +118,8 @@ public class AppTest {
             EccpLogoutAgentResponse logoutResponse = console.logoutAgent();
             System.out.println("Logout agent: " + logoutResponse);
             System.out.println("Agent console logout: " + console.logoutAgent());
-            eccp.disconnect();
-        } catch (EccpException ex) {
+            eccp.close();
+        } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("deu merda " + ex.getMessage());
         }
@@ -148,9 +127,9 @@ public class AppTest {
 
     private static ElastixIntegration getElastixIntegration() {
         ElastixIntegration elastixIntegration = ElastixIntegration.create(
-                EConfiguracao.IP_BANCO.getValor()
-                        + EConfiguracao.PORTA_BANCO.getValor(), EConfiguracao.USUARIO_BANCO.getValor(),
-                        EConfiguracao.SENHA_BANCO.getValor());
+                EConfiguracaoDev.IP_BANCO.getValor()
+                        + EConfiguracaoDev.PORTA_BANCO.getValor(), EConfiguracaoDev.USUARIO_BANCO.getValor(),
+                EConfiguracaoDev.SENHA_BANCO.getValor());
         return elastixIntegration;
     }
 }

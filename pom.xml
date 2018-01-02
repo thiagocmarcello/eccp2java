@@ -99,11 +99,10 @@
             <artifactId>commons-collections4</artifactId>
             <version>4.1</version>
         </dependency>
-        
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.9-RC1</version>
+            <version>0.9.11</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -131,16 +130,9 @@
             <version>4.4</version>
         </dependency>
         <dependency>
-            <groupId>com.opera</groupId>
-            <artifactId>operadriver</artifactId>
-            <scope>test</scope>
-            <version>1.5</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.seleniumhq.selenium</groupId>
-                    <artifactId>selenium-remote-driver</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>1.4.01</version>
         </dependency>
     </dependencies>
 </project>

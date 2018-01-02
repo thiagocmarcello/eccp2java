@@ -8,8 +8,6 @@ public interface IEccpRequest {
 
     Long getId();
 
-    void setId(Long id);
-
     default Class<? extends IEccpResponse> expectedResponseType() {
         return IEccpResponse.class;
     }

@@ -45,7 +45,7 @@ public class ElastixTest {
 
     @Test
     public void testCreate() {
-        System.out.println("create");
+        System.out.println("of");
         Elastix result = Elastix.create(host, port, user, password);
         assertEquals(host, result.getHost());
         assertEquals(port, result.getPort());

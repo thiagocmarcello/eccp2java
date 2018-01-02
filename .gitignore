@@ -35,10 +35,15 @@ logs
 pids
 *.pid
 *.seed
-
+test.out
 
 # Netbeans IDE
 /nbproject/
 nbactions.xml
 nb-configuration.xml
 nb_jr_remoting.cfg
+
+# Eclipse IDE
+.classpath
+.project
+.settings/

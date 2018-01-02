@@ -1,11 +1,8 @@
 package br.com.xbrain.eccp2java.database;
 
 import br.com.xbrain.eccp2java.database.connection.ElastixEMFs;
-import br.com.xbrain.eccp2java.database.model.Queue;
-import br.com.xbrain.eccp2java.database.model.QueueConfig;
-import br.com.xbrain.eccp2java.database.model.QueueDetail;
-import br.com.xbrain.eccp2java.database.model.QueuesDetailPK;
-import br.com.xbrain.eccp2java.enums.EConfiguracao;
+import br.com.xbrain.eccp2java.database.model.*;
+import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,9 +52,11 @@ public class QueueManagerTest {
     }
 
     @Test
-    public void testSaveInvalidQueue() {
-        QueueManager queueManager = QueueManager.create(elastixEMFs,
-                EConfiguracao.IP_QUEUES_RELOAD + ":" + EConfiguracao.PORTA_QUEUES_RELOAD);
+    public void testSaveInvalidQueue() throws ElastixIntegrationException {
+        QueueManager queueManager = QueueManager.create(
+                elastixEMFs,
+                Ipv4.of(EConfiguracaoDev.IP_QUEUES_RELOAD.getValor()),
+                Integer.parseInt(EConfiguracaoDev.PORTA_QUEUES_RELOAD.getValor()));
 
         try {
             queueManager.save(createInvalidQueue());
@@ -70,9 +69,11 @@ public class QueueManagerTest {
     }
 
     @Test
-    public void testSaveInvalidQueueConfig() {
-        QueueManager queueManager = QueueManager.create(elastixEMFs,
-                EConfiguracao.IP_QUEUES_RELOAD + ":" + EConfiguracao.PORTA_QUEUES_RELOAD);
+    public void testSaveInvalidQueueConfig() throws ElastixIntegrationException {
+        QueueManager queueManager = QueueManager.create(
+                elastixEMFs,
+                Ipv4.of(EConfiguracaoDev.IP_QUEUES_RELOAD.getValor()),
+                Integer.parseInt(EConfiguracaoDev.PORTA_QUEUES_RELOAD.getValor()));
 
         try {
             queueManager.save(createInvalidQueueConfig());

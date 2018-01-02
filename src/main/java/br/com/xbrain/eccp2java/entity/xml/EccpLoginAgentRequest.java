@@ -21,9 +21,13 @@ import lombok.ToString;
 @ToString
 public class EccpLoginAgentRequest extends EccpAbstractRequest {
 
-    public static EccpLoginAgentRequest create(Long id, String agentNumber, String password, String appCookie,
+    public static EccpLoginAgentRequest create(
+            String agentNumber,
+            String password,
+            String appCookie,
             Integer extension) {
-        return new EccpLoginAgentRequest(id, agentNumber, password, appCookie, extension);
+
+        return new EccpLoginAgentRequest(SerialRequestIdGenerator.nextId(), agentNumber, password, appCookie, extension);
     }
 
     @Getter
@@ -61,7 +65,6 @@ public class EccpLoginAgentRequest extends EccpAbstractRequest {
     }
 
     private EccpLoginAgentRequest(Long id, String agentNumber, String password, String appCookie, Integer extension) {
-        this.id = id;
         this.agentNumber = agentNumber;
         this.password = password;
         this.appCookie = appCookie;

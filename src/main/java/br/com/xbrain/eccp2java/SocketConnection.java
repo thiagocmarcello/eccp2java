@@ -1,44 +1,39 @@
 package br.com.xbrain.eccp2java;
 
-import br.com.xbrain.eccp2java.entity.xml.Elastix;
+import br.com.xbrain.eccp2java.entity.xml.EccpLoginRequest;
+import br.com.xbrain.eccp2java.entity.xml.EccpLoginResponse;
+import br.com.xbrain.eccp2java.entity.xml.IEccpRequest;
+import br.com.xbrain.eccp2java.entity.xml.IEccpResponse;
 import br.com.xbrain.eccp2java.exception.EccpException;
 import br.com.xbrain.eccp2java.util.DocumentUtils;
 import br.com.xbrain.eccp2java.util.StreamUtils;
-import br.com.xbrain.eccp2java.entity.xml.EccpLoginRequest;
-import br.com.xbrain.eccp2java.entity.xml.IEccpRequest;
-import br.com.xbrain.eccp2java.entity.xml.IEccpResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import lombok.Getter;
+
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import lombok.Getter;
-import org.w3c.dom.Document;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/**
- *
- * @author joaomassan@xbrain.com.br
- */
 public class SocketConnection implements AutoCloseable {
 
-    private static final Logger LOG = Logger.getLogger(SocketConnection.class.getName());
+    public static final Logger LOG = Logger.getLogger(SocketConnection.class.getName());
 
-    public static final String RESPONSE_END_TAG = "</response>";
-
-    public static final String EVENT_END_TAG = "</event>";
-
-    public static SocketConnection create(Elastix elastix) {
-        return new SocketConnection(elastix);
+    public static SocketConnection connect(EccpClient eccpClient) throws EccpException {
+        SocketConnection socketConnection = new SocketConnection(eccpClient);
+        socketConnection.connect();
+        return socketConnection;
     }
 
     private Socket socket;
+
+    @Getter
+    private String appCookie;
 
     @Getter
     private InputStream inputStream;
@@ -46,107 +41,106 @@ public class SocketConnection implements AutoCloseable {
     @Getter
     private OutputStream outputStream;
 
+    private SocketReaderAgent socketReaderAgent;
+
     @Getter
-    private final Elastix elastix;
+    private final EccpClient eccpClient;
+
+    private final EccpResponseHeap responseHeap = EccpResponseHeap.instance();
 
     @Getter
     private final Long timeout;
 
-    private SocketConnection(Elastix elastix) {
-        this.elastix = elastix;
+    private Transformer transformer = DocumentUtils.createTransformer();
+
+    private SocketConnection(EccpClient eccpClient) {
+        this.eccpClient = eccpClient;
         this.timeout = 10000L;
     }
 
     public void connect() throws EccpException {
         try {
-            socket = new Socket(elastix.getHost(), elastix.getPort());
+            socket = new Socket(eccpClient.getElastix().getHost(), eccpClient.getElastix().getPort());
             socket.setSoTimeout(Integer.parseInt(timeout.toString()));
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
+            startSocketListener();
+            login();
         } catch (IOException ex) {
-            throw EccpException.create(EccpException.Error.SERVICE_UNAVAILABLE, ex);
+            throw new EccpException("Serviço indisponível", ex);
         }
     }
 
-    public void disconnect() {
-        StreamUtils.close(inputStream, outputStream, socket);
+    private void startSocketListener() throws EccpException {
+        LOG.info("Iniciando SocketReaderAgent...");
+        if (socketReaderAgent == null) {
+            socketReaderAgent = SocketReaderAgent.start(this);
+        }
+    }
+
+    private void login() throws EccpException {
+        EccpLoginRequest loginRequest = EccpLoginRequest.create(
+                eccpClient.getElastix().getUser(),
+                eccpClient.getElastix().getPassword());
+        EccpLoginResponse loginResponse = (EccpLoginResponse) send(loginRequest);
+        this.appCookie = loginResponse.getAppCookie();
+        if (loginResponse.isFailure()) {
+            throw new EccpException("Problema ao conectar com o Elastix: " + loginResponse, null);
+        }
     }
 
     public boolean isConnected() {
         return socket.isConnected();
     }
 
-    @Override
-    public void close() throws Exception {
-        disconnect();
-    }
-
     public IEccpResponse send(IEccpRequest request) throws EccpException {
         try {
-            EccpRequestFactory<EccpLoginRequest> xmlCreator = EccpRequestFactory.create(request);
-            Transformer transformer = DocumentUtils.createTransformer();
-            DOMSource source = new DOMSource(xmlCreator.toDocument());
-            int retries = 0;
-            while (retries++ < 3) {
-                try {
-                    StreamResult result1 = new StreamResult(socket.getOutputStream());
-                    transformer.transform(source, result1);
-                    Document responseDocument = DocumentUtils.parseDocument(readResponse());
-                    
-                    //return new EccpResponseFactory(responseDocument).createResponse();
-
-                    return request.expectedResponseType().cast(
-                            new EccpResponseFactory(responseDocument).createResponse());
-
-                } catch (ClassCastException | EccpException ex) {
-                    waitForNextResponse();
-                    LOG.log(Level.WARNING,
-                            "Tipo inesperado para o response {0}. Retentando: {1}.",
-                            new Object[]{ex.getMessage(), retries});
-                }
-            }
+            DOMSource source = parseEccpRequestIntoDomSource(request);
+            writeRequestToEccpOutput(source);
         } catch (IllegalArgumentException | IOException | TransformerException ex) {
-            throw EccpException.create(EccpException.Error.CAN_NOT_SEND, ex);
+            throw new EccpException("Não foi possível enviar o request: " + request, ex);
         }
 
-        throw EccpException.create(EccpException.Error.RESPONSE_NOT_FOUND);
+        return waitResponse(request);
     }
 
-    // TODO precisa de um timeout
-    private String readResponse() {
-        StringBuilder result = new StringBuilder();
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            while ((line = br.readLine()) != null) {
-                result.append(line).append("\n");
-                LOG.log(Level.INFO, "read: {0}", line);
-                if (line.endsWith(RESPONSE_END_TAG)) {
+    private DOMSource parseEccpRequestIntoDomSource(IEccpRequest request) throws EccpException {
+        EccpRequestFactory<?> xmlCreator = EccpRequestFactory.create(request);
+        return new DOMSource(xmlCreator.toDocument());
+    }
+
+    private void writeRequestToEccpOutput(DOMSource parsedIntoDomRequest) throws IOException, TransformerException {
+        StreamResult result1 = new StreamResult(socket.getOutputStream());
+        transformer.transform(parsedIntoDomRequest, result1);
+    }
+
+    private IEccpResponse waitResponse(IEccpRequest request) {
+        int retries = 0;
+        IEccpResponse response = null;
+        while (retries++ < 3) {
+            synchronized (responseHeap) {
+                response = responseHeap.retrieve(request.getId());
+                if (response == null) {
+                    try {
+                        responseHeap.wait();
+                    } catch (InterruptedException ex) {
+                        LOG.log(Level.SEVERE, "Pau!", ex);
+                    }
+                } else {
                     break;
                 }
             }
-            return filterTag(result.toString(), RESPONSE_END_TAG);
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, null, ex);
         }
-        return result.toString();
+        return response;
     }
 
-    public static String filterTag(String response, String filterTag) {
-        int begin = response.lastIndexOf("<?xml");
-        int end = response.lastIndexOf(filterTag);
-        if (begin * end < 0) {
-            throw new IllegalArgumentException(response + " não é uma resposta válida");
-        }
-        return response.substring(begin, end + filterTag.length());
-    }
-
-    private void waitForNextResponse() {
+    @Override
+    public void close() {
         try {
-            LOG.log(Level.INFO, "{0} aguardando pela próxima resposta.", new Object[] {Thread.currentThread().getName()});
-            Thread.sleep(300L);
-        } catch (InterruptedException ex) {
-            LOG.log(Level.SEVERE, null, ex);
+            socketReaderAgent.stop();
+            StreamUtils.close(inputStream, outputStream, socket);
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Erro ao encerrar a SocketConnection", ex);
         }
     }
 }

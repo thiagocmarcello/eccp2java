@@ -1,5 +1,7 @@
 package br.com.xbrain.eccp2java.database.model;
 
+import lombok.Builder;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,8 +23,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import lombok.experimental.Builder;
-
 
 /**
  *

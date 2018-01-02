@@ -26,8 +26,8 @@ import lombok.ToString;
 public class EccpLogoutAgentRequest extends EccpAbstractRequest {
     
 
-    public static EccpLogoutAgentRequest create(final Long id, final String agentNumber, final String agentHash) {
-        return new EccpLogoutAgentRequest(id, agentNumber, agentHash);
+    public static EccpLogoutAgentRequest create(String agentNumber,  String agentHash) {
+        return new EccpLogoutAgentRequest(agentNumber, agentHash);
     }
 
     @Getter
@@ -40,8 +40,7 @@ public class EccpLogoutAgentRequest extends EccpAbstractRequest {
     @XmlElement(name = "agent_hash")
     private String agentHash;
 
-    private EccpLogoutAgentRequest(Long id, String agentNumber, String agentHash) {
-        this.id = id;
+    private EccpLogoutAgentRequest(String agentNumber, String agentHash) {
         this.agentNumber = agentNumber;
         this.agentHash = agentHash;
     }

@@ -74,18 +74,18 @@ public class ElastixEMFs {
         return Persistence.createEntityManagerFactory(pu2Db.getPuName(), props);
     }
     
-    private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
+    private void writeObject(java.io.ObjectOutputStream oos) throws IOException {
         asteriskEMF = null;
         callCenterEMF = null;
-        stream.writeObject(url);
-        stream.writeObject(user);
-        stream.writeObject(password);
+        oos.writeObject(url);
+        oos.writeObject(user);
+        oos.writeObject(password);
     }
 
-    private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
-        password = (String) stream.readObject();
-        user = (String) stream.readObject();
-        url = (String) stream.readObject();
+    private void readObject(java.io.ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        password = (String) ois.readObject();
+        user = (String) ois.readObject();
+        url = (String) ois.readObject();
         callCenterEMF = null;
         asteriskEMF = null;
     }

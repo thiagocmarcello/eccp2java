@@ -1,18 +1,15 @@
 package br.com.xbrain.eccp2java.entity.xml;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-/**
- *
- * @author joaomassan@xbrain.com.br
- */
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 @XmlRootElement(name = "login")
 @XmlAccessorType(XmlAccessType.FIELD) 
 @EqualsAndHashCode(callSuper = true)
@@ -38,7 +35,9 @@ public class EccpLoginRequest extends EccpAbstractRequest  {
         this.password = password;
     }
 
-    private EccpLoginRequest() {}
+    private EccpLoginRequest() {
+        /* Requerido pelo Jackson */
+    }
 
     @Override
     public Class<? extends IEccpResponse> expectedResponseType() {
