@@ -54,17 +54,6 @@ public class AgentConsole {
         return response;
     }
 
-    // FIXME isso deveria estar dentro do EccpClient
-//    public EccpLoginResponse connectAgentConsole() throws EccpException {
-//        connectEccp();
-//        EccpLoginRequest request = EccpLoginRequest.start(
-//                eccpClient.getElastix().getUser(),
-//                eccpClient.getElastix().getPassword());
-//        EccpLoginResponse response = (EccpLoginResponse) send(request);
-//        appCookie = response.getAppCookie();
-//        return response;
-//    }
-
     public EccpLoginAgentResponse loginAgent() throws EccpException {
         EccpLoginAgentRequest request = EccpLoginAgentRequest.create(
                 agentNumber,
