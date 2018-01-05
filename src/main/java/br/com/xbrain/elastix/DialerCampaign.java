@@ -1,28 +1,20 @@
 package br.com.xbrain.elastix;
 
 import br.com.xbrain.eccp2java.database.CampaignContextEnum;
-import br.com.xbrain.eccp2java.database.model.Call;
-import br.com.xbrain.eccp2java.database.model.CallAttribute;
-import br.com.xbrain.eccp2java.database.model.Campaign;
-import br.com.xbrain.eccp2java.database.model.Form;
-import br.com.xbrain.eccp2java.database.model.Queue;
-import br.com.xbrain.eccp2java.database.model.QueueConfig;
-import br.com.xbrain.eccp2java.database.model.QueueDetail;
-import br.com.xbrain.eccp2java.database.model.QueuesDetailPK;
+import br.com.xbrain.eccp2java.database.model.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
-import org.apache.commons.collections4.CollectionUtils;
 
 /**
  *
@@ -31,10 +23,12 @@ import org.apache.commons.collections4.CollectionUtils;
 @ToString
 @EqualsAndHashCode(of = {"campaign", "queue"})
 public class DialerCampaign implements Serializable {
-    
+
+    public static final int DEFAULT_MAX_CANALES = 10;
+    public static final int DEFAULT_FORM_ID = 1;
+
     public static DialerCampaign create(Campaign campaign, Queue queue) {
-        DialerCampaign dialerCampaign = new DialerCampaign(campaign, queue);
-        return dialerCampaign;
+        return new DialerCampaign(campaign, queue);
     }
 
     @Getter
@@ -48,13 +42,11 @@ public class DialerCampaign implements Serializable {
         this.queue = queue;
     }
 
-    public static final DialerCampaignBuilder builder() {
+    public static DialerCampaignBuilder builder() {
         return new DialerCampaignBuilder();
     }
 
     public static final class DialerCampaignBuilder {
-
-        private static final Logger LOG = Logger.getLogger(DialerCampaignBuilder.class.getName());
 
         private static final SimpleDateFormat HOUR_FORMAT = new SimpleDateFormat("kk:mm");
 
@@ -63,7 +55,10 @@ public class DialerCampaign implements Serializable {
         private String campaignName;
         private String script = "";
         private String context = CampaignContextEnum.FROM_INTERNAL.getValue();
-        private Date from, to, startingAt, endingAt;
+        private Date from;
+        private Date to;
+        private Date startingAt;
+        private Date endingAt;
         private Integer retrying;
 
         private List<Contact> contacts;
@@ -128,6 +123,7 @@ public class DialerCampaign implements Serializable {
             if (context == null) {
                 this.context = CampaignContextEnum.FROM_INTERNAL.getValue();
             }
+            assert context != null : "Contexto não deveria estar nulo";
             this.context = context.getValue();
             return this;
         }
@@ -177,6 +173,7 @@ public class DialerCampaign implements Serializable {
             return new DialerCampaign(createCampaign(), createQueue());
         }
 
+        @SuppressWarnings("checkstyle:MethodLength")
         private Campaign createCampaign() {
             Campaign campaign = Campaign.builder().id(null)
                     .name(campaignName)
@@ -188,31 +185,32 @@ public class DialerCampaign implements Serializable {
                     .context(context)
                     .queue(String.valueOf(id))
                     .script(script)
-                    .maxCanales(10)         // TODO remover hard code
-                    .estatus("A").build();  // TODO criar enum para situação
+                    .maxCanales(DEFAULT_MAX_CANALES)
+                    .estatus("A").build();
 
             // TODO verificar como vai ficar a situação dos formulários também
-            Form form = new Form(1);
-            form.setCampaignCollection(Arrays.asList(campaign));
-            campaign.setFormCollection(Arrays.asList(form));
+            Form form = new Form(DEFAULT_FORM_ID);
+            form.setCampaignCollection(Collections.singletonList(campaign));
+            campaign.setFormCollection(Collections.singletonList(form));
 
             for (Contact contact : contacts) {
-                createCall(campaign, contact.getPhone(), contact.getHpId(), "", "");
+                createCall(campaign, contact.getPhone(), contact.getHpId());
             }
 
             return campaign;
         }
 
-        private static void createCall(Campaign campaign, String number, String idHP, String name, String obs) {
+        @SuppressWarnings({"PMD.MagicNumber", "checkstyle:MagicNumber", "checkstyle:MethodLength"})
+        private static void createCall(Campaign campaign, String number, String idHp) {
             Call call = new Call();
             call.setCampaign(campaign);
             call.setPhone(number);
 
             campaign.getCalls().add(call);
 
-            CallAttribute callAttribute1 = new CallAttribute("id_hp", idHP, 1, call);
-            CallAttribute callAttribute2 = new CallAttribute("nome", name, 2, call);
-            CallAttribute callAttribute3 = new CallAttribute("obs", obs, 3, call);
+            CallAttribute callAttribute1 = new CallAttribute("id_hp", idHp, 1, call);
+            CallAttribute callAttribute2 = new CallAttribute("nome", "", 2, call);
+            CallAttribute callAttribute3 = new CallAttribute("obs", "", 3, call);
 
             call.getAttributes().add(callAttribute1);
             call.getAttributes().add(callAttribute2);
@@ -246,6 +244,7 @@ public class DialerCampaign implements Serializable {
         }
 
         // TODO melhorar o design dessa bagaça
+        @SuppressWarnings("checkstyle:MethodLength")
         private List<QueueDetail> createQueueDetailsList(String id) {
             List<QueueDetail> queueDetails = new ArrayList<>();
             queueDetails.add(createQueueDetail(id, "announce-frequency", "0"));
@@ -293,9 +292,9 @@ public class DialerCampaign implements Serializable {
         }
 
         private QueueDetail createQueueDetail(String queueId, String keyword, String value) {
-            QueuesDetailPK queuesDetailsPK = new QueuesDetailPK(queueId, keyword, value);
+            QueuesDetailPk queuesDetailsPk = new QueuesDetailPk(queueId, keyword, value);
             QueueDetail queueDetail = new QueueDetail();
-            queueDetail.setQueuesDetailsPK(queuesDetailsPK);
+            queueDetail.setQueuesDetailsPk(queuesDetailsPk);
             return queueDetail;
         }
     }

@@ -1,45 +1,17 @@
 package br.com.xbrain.eccp2java.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.mockito.MockingDetails;
 import org.mockito.Mockito;
 
-/**
- *
- * @author xbrain
- */
+import java.io.*;
+
+import static org.junit.Assert.assertEquals;
+
 public class StreamUtilsTest {
     
     public StreamUtilsTest() {
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
-
     @Test
     public void testFlushAndClose_GenericType() throws IOException {
         System.out.println("flushAndClose");

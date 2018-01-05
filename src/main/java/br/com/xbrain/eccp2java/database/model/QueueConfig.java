@@ -2,13 +2,9 @@ package br.com.xbrain.eccp2java.database.model;
 
 import lombok.Builder;
 
-import java.io.Serializable;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 
 /**
@@ -16,7 +12,7 @@ import javax.validation.constraints.NotNull;
  * @author joaomassan@xbrain.com.br (xbrain)
  */
 @Entity
-@Table(name = "queues_config", catalog = "asterisk", schema = "")
+@Table(name = "queues_config", catalog = "asterisk")
 public class QueueConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -74,7 +70,18 @@ public class QueueConfig implements Serializable {
     }
 
     @Builder
-    public QueueConfig(String extension, String descr, String grppre, String alertinfo, boolean ringing, String maxwait, String password, String ivrId, String dest, boolean cwignore, String callbackId) {
+    public QueueConfig(
+            String extension,
+            String descr,
+            String grppre,
+            String alertinfo,
+            boolean ringing,
+            String maxwait,
+            String password,
+            String ivrId,
+            String dest,
+            boolean cwignore,
+            String callbackId) {
         this.extension = extension;
         this.descr = descr;
         this.grppre = grppre;
@@ -286,10 +293,8 @@ public class QueueConfig implements Serializable {
             return false;
         }
         QueueConfig other = (QueueConfig) object;
-        if ((this.extension == null && other.extension != null) || (this.extension != null && !this.extension.equals(other.extension))) {
-            return false;
-        }
-        return true;
+        return (this.extension != null || other.extension == null)
+                && (this.extension == null || this.extension.equals(other.extension));
     }
 
     @Override

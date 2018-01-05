@@ -12,11 +12,10 @@ import static org.mockito.BDDMockito.willDoNothing;
 public class EccpClientTest {
     
     private EccpClient eccpClient;
-    private Elastix elastix;
 
     @Before
     public void configureEccp() throws EccpException {
-        elastix = Mockito.mock(Elastix.class);
+        Elastix elastix = Mockito.mock(Elastix.class);
         eccpClient = Mockito.mock(EccpClient.class);
         willDoNothing().given(eccpClient).connect();
         given(eccpClient.createAgentConsole("Agent/8020", "123456", 8020))

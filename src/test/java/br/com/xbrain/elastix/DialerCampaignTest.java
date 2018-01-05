@@ -1,16 +1,10 @@
 package br.com.xbrain.elastix;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.*;
 
 public class DialerCampaignTest {
 
@@ -21,14 +15,6 @@ public class DialerCampaignTest {
     private Date today, todayPlus15;
 
     public DialerCampaignTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
     }
 
     @Before
@@ -50,10 +36,6 @@ public class DialerCampaignTest {
                 Contact.create("8006", "76546"),
                 Contact.create("8005", "76547"),
                 Contact.create("8005", "76548"));
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test

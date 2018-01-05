@@ -1,15 +1,16 @@
 package br.com.xbrain.eccp2java.database.model;
 
 import br.com.xbrain.eccp2java.util.DateUtils;
-import java.util.Date;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.validation.Validation;
 import javax.validation.Validator;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  *
@@ -25,14 +26,6 @@ public class CampaignTest {
     private Validator validator;
     
     public CampaignTest() {
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
     }
     
     @Before

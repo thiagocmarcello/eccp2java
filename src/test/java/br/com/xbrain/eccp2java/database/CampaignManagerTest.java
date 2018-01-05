@@ -1,55 +1,27 @@
 package br.com.xbrain.eccp2java.database;
 
-import br.com.xbrain.eccp2java.database.connection.ElastixEMFs;
+import br.com.xbrain.eccp2java.database.connection.ElastixEmfs;
 import br.com.xbrain.eccp2java.database.model.Call;
 import br.com.xbrain.eccp2java.database.model.CallAttribute;
 import br.com.xbrain.eccp2java.database.model.Campaign;
-import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
 import br.com.xbrain.eccp2java.util.DateUtils;
-import br.com.xbrain.elastix.DialerCampaign;
-import br.com.xbrain.elastix.ElastixIntegration;
-import java.util.Date;
-import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-/**
- *
- * @author xbrain
- */
+import java.util.Arrays;
+import java.util.Date;
+
+import static org.junit.Assert.assertNotNull;
+
 public class CampaignManagerTest {
     
     public CampaignManagerTest() {
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
-
     @Test
     public void testCreate() {
         System.out.println("of");
-        ElastixEMFs eccp2JavaEMF = Mockito.mock(ElastixEMFs.class);
+        ElastixEmfs eccp2JavaEMF = Mockito.mock(ElastixEmfs.class);
         CampaignManager campaign = CampaignManager.create(eccp2JavaEMF);
         assertNotNull(campaign);
     }
@@ -88,12 +60,9 @@ public class CampaignManagerTest {
         createCall(campaign, "8002", "123456", "Silvio Charlie Brown", "Teste");
         createCall(campaign, "8001", "123456", "Jaumzera", "Teste");
         
-        Mockito.doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                System.out.println("Chamou salvar: " + invocation.getArguments().toString());
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            System.out.println("Chamou salvar: " + Arrays.toString(invocation.getArguments()));
+            return null;
         }).when(campaignCreator).save(campaign);
         campaignCreator.save(campaign);
     }

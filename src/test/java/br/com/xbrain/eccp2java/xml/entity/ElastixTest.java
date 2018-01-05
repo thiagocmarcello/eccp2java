@@ -6,12 +6,9 @@
 package br.com.xbrain.eccp2java.xml.entity;
 
 import br.com.xbrain.eccp2java.entity.xml.Elastix;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -25,22 +22,6 @@ public class ElastixTest {
     private final String password = "myPassword";
 
     public ElastixTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test

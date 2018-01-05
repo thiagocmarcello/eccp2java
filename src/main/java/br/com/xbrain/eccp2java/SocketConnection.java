@@ -23,6 +23,8 @@ import java.util.logging.Logger;
 public class SocketConnection implements AutoCloseable {
 
     public static final Logger LOG = Logger.getLogger(SocketConnection.class.getName());
+    public static final long DEFAULT_SOCKET_TIMEOUT = 10000L;
+    public static final int DEFAULT_MAX_RETRIES = 3;
 
     public static SocketConnection connect(EccpClient eccpClient) throws EccpException {
         SocketConnection socketConnection = new SocketConnection(eccpClient);
@@ -51,11 +53,11 @@ public class SocketConnection implements AutoCloseable {
     @Getter
     private final Long timeout;
 
-    private Transformer transformer = DocumentUtils.createTransformer();
+    private final Transformer transformer = DocumentUtils.createTransformer();
 
     private SocketConnection(EccpClient eccpClient) {
         this.eccpClient = eccpClient;
-        this.timeout = 10000L;
+        this.timeout = DEFAULT_SOCKET_TIMEOUT;
     }
 
     public void connect() throws EccpException {
@@ -71,7 +73,7 @@ public class SocketConnection implements AutoCloseable {
         }
     }
 
-    private void startSocketListener() throws EccpException {
+    private void startSocketListener() {
         LOG.info("Iniciando SocketReaderAgent...");
         if (socketReaderAgent == null) {
             socketReaderAgent = SocketReaderAgent.start(this);
@@ -117,7 +119,7 @@ public class SocketConnection implements AutoCloseable {
     private IEccpResponse waitResponse(IEccpRequest request) {
         int retries = 0;
         IEccpResponse response = null;
-        while (retries++ < 3) {
+        while (retries++ < DEFAULT_MAX_RETRIES) {
             synchronized (responseHeap) {
                 response = responseHeap.retrieve(request.getId());
                 if (response == null) {

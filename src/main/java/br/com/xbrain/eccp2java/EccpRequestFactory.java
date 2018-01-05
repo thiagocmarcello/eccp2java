@@ -1,11 +1,10 @@
 package br.com.xbrain.eccp2java;
 
-import br.com.xbrain.eccp2java.exception.EccpException;
 import br.com.xbrain.eccp2java.entity.xml.EccpRequestWrapper;
 import br.com.xbrain.eccp2java.entity.xml.IEccpRequest;
-import java.io.ByteArrayOutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import br.com.xbrain.eccp2java.exception.EccpException;
+import org.w3c.dom.Document;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -17,14 +16,11 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Document;
+import java.io.ByteArrayOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/**
- *
- * @author joaomassan@xbrain.com.br
- * @param <T>
- */
-public class EccpRequestFactory <T extends IEccpRequest> {
+public class EccpRequestFactory<T extends IEccpRequest> {
     
     private static final Logger LOG = Logger.getLogger(EccpRequestFactory.class.getName());
     
@@ -83,7 +79,7 @@ public class EccpRequestFactory <T extends IEccpRequest> {
     
     @Override
     public String toString() {
-        if(xmlString == null) {
+        if (xmlString == null) {
             try {
                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
                 Transformer transformer = transformerFactory.newTransformer();

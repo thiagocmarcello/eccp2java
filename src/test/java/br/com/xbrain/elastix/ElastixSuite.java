@@ -1,16 +1,14 @@
 package br.com.xbrain.elastix;
 
 import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
+import org.junit.Test;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
+
 import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  *
@@ -22,22 +20,6 @@ public class ElastixSuite {
     public static final String PASSWORD = "8002";
     public static final String AGENT = "Agent/8002";
     public static final String QUEUE_ID = "7412";
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
 
     @Test
     public void deveTerUmPontoDeEntradaPorOndeSeraoChamadasAsRotinasDoElastix() {

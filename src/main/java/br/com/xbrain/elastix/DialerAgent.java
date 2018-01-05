@@ -1,11 +1,8 @@
 package br.com.xbrain.elastix;
 
+import lombok.*;
+
 import java.io.Serializable;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Setter;
-import lombok.ToString;
 
 
 /**
@@ -26,10 +23,11 @@ public class DialerAgent implements Serializable {
     
     private DialerAgent() {}
     
-    public static final DialerAgent create(String elastixAgentName, Long localId) {
-        if(!elastixAgentName.matches("Agent\\/[0-9]{4}(,\\d)?")) {
-            throw new IllegalArgumentException("Nome do agente inválido: '" + elastixAgentName + "'. Informe um nome como Agent/1001");
-        } else if(localId == null) {
+    public static DialerAgent create(String elastixAgentName, Long localId) {
+        if (!elastixAgentName.matches("Agent/[0-9]{4}(,\\d)?")) {
+            throw new IllegalArgumentException("Nome do agente inválido: '"
+                    + elastixAgentName + "'. Informe um nome como Agent/1001");
+        } else if (localId == null) {
             throw new IllegalArgumentException("o id local não pode ser nulo");
         }
 
@@ -37,7 +35,7 @@ public class DialerAgent implements Serializable {
 
         String[] parts = elastixAgentName.split(",");
         agent.elastixAgentName = parts[0];
-        if(parts.length == 2) {
+        if (parts.length == 2) {
             agent.penalty = Integer.valueOf(parts[1]);
         } 
         

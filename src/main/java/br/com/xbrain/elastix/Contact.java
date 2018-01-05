@@ -1,10 +1,11 @@
 package br.com.xbrain.elastix;
 
-import java.io.Serializable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.io.Serializable;
 
 /**
  *
@@ -27,7 +28,7 @@ public class Contact implements Serializable {
         this.hpId = hpId;
     }
 
-    public static final Contact create(String phone, String hpId) {
+    public static Contact create(String phone, String hpId) {
         if (phone == null) {
             throw new IllegalArgumentException("O telefone do contato não pode ser nulo");
         }

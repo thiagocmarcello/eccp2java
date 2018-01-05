@@ -1,6 +1,5 @@
 package br.com.xbrain.eccp2java.database.model;
 
-import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -16,7 +15,7 @@ public class RestartQueueEndpoint {
     }
 
     public enum Protocol {
-        HTTP, HTTPS;
+        HTTP, HTTPS
     }
 
     private static final String RELOAD_QUEUES_RESOURCE = "/modules/queues/reload.php";

@@ -12,12 +12,12 @@ import javax.xml.bind.Unmarshaller;
 
 
 public class EccpResponseFactory {
-    
+
     private final Document document;
     private Element responseElement;
     private Unmarshaller unmarshaller;
 
-    public EccpResponseFactory(Document document) throws EccpException {
+    public EccpResponseFactory(Document document) {
         this.document = document;
     }
 
@@ -30,10 +30,10 @@ public class EccpResponseFactory {
             configureResponseId(response);
             return (T) response;
         } catch (JAXBException ex) {
-           throw new EccpException("Não foi possível criar a resposta", ex);
+            throw new EccpException("Não foi possível criar a resposta", ex);
         }
     }
-    
+
     private void configureResponseId(IEccpResponse response) throws NumberFormatException, EccpException {
         String idStr = getResponseElement().getAttribute("id");
         Long responseId = isNeitherNullNorBlankNorNullTypedString(idStr) ? Long.valueOf(idStr) : null;
@@ -43,16 +43,16 @@ public class EccpResponseFactory {
     private static boolean isNeitherNullNorBlankNorNullTypedString(String text) {
         return text != null && text != "" && !"null".equalsIgnoreCase(text);
     }
-    
-    private Element getResponseElement() throws EccpException {
-        if(responseElement == null) {
+
+    private Element getResponseElement() {
+        if (responseElement == null) {
             responseElement = (Element) document.getFirstChild();
         }
         return responseElement;
     }
 
     private Unmarshaller getUnmarshaller(Class<?> clss) throws EccpException {
-        if(unmarshaller == null) {
+        if (unmarshaller == null) {
             try {
                 JAXBContext jaxbContext = JAXBContext.newInstance(clss);
                 unmarshaller = jaxbContext.createUnmarshaller();

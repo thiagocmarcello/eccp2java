@@ -10,7 +10,7 @@ public enum CampaignContextEnum {
     FROM_INTERNAL("from-internal");
 
     @Getter
-    String value;
+    private final String value;
 
     CampaignContextEnum(String value) {
         this.value = value;

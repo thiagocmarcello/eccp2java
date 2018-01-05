@@ -1,13 +1,5 @@
 package br.com.xbrain.eccp2java.util;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -22,10 +14,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 
-/**
- *
- * @author joaomassan@xbrain.com.br (xbrain)
- */
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.util.logging.Logger;
+
 public class HttpUtils {
 
     private static final Logger LOG = Logger.getLogger(HttpUtils.class.getName());

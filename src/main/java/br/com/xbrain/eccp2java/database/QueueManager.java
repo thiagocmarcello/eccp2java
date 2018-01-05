@@ -1,45 +1,39 @@
 package br.com.xbrain.eccp2java.database;
 
+import br.com.xbrain.eccp2java.database.connection.ElastixEmfs;
 import br.com.xbrain.eccp2java.database.model.Ipv4;
 import br.com.xbrain.eccp2java.database.model.Queue;
 import br.com.xbrain.eccp2java.database.model.QueueConfig;
-import br.com.xbrain.eccp2java.database.connection.ElastixEMFs;
 import br.com.xbrain.eccp2java.database.model.RestartQueueEndpoint;
-import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
 import br.com.xbrain.eccp2java.util.HttpUtils;
 import br.com.xbrain.eccp2java.util.HttpUtils.Param;
 import br.com.xbrain.elastix.DialerAgent;
+
+import javax.validation.*;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidationException;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
 public class QueueManager {
 
-    private static final Logger LOG = Logger.getLogger(QueueManager.class.getName());
-
     public static final String DIGEST_ALGORITHM = "SHA1";
+    public static final int HTTP_200_STATUS = 200;
+    public static final int HTTP_300_STATUS = 300;
 
     private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 
     private RestartQueueEndpoint endpoint;
 
-    public static QueueManager create(ElastixEMFs elastixEMFs, Ipv4 reloadQueueIp, int reloadQueuePort)
+    public static QueueManager create(ElastixEmfs elastixEmfs, Ipv4 reloadQueueIp, int reloadQueuePort)
             throws ElastixIntegrationException {
 
         try {
             QueueManager queueManager = new QueueManager();
-            queueManager.elastixEMFs = elastixEMFs;
+            queueManager.elastixEmfs = elastixEmfs;
             queueManager.endpoint = RestartQueueEndpoint.create(
                     RestartQueueEndpoint.Protocol.HTTP,
                     reloadQueueIp,
@@ -51,7 +45,7 @@ public class QueueManager {
         }
     }
 
-    private ElastixEMFs elastixEMFs;
+    private ElastixEmfs elastixEmfs;
 
     private QueueManager() {}
 
@@ -59,8 +53,8 @@ public class QueueManager {
         try {
             validate(queue);
             validatorFactory.getValidator().validate(queue.getQueueConfig());
-            QueueDAO queueDAO = createQueueDAO();
-            Queue savedQueue = queueDAO.create(queue);
+            QueueDao queueDao = createQueueDao();
+            Queue savedQueue = queueDao.create(queue);
             restartAsteriskQueues();
             return savedQueue;
         } catch (ValidationException | IllegalArgumentException ex) {
@@ -69,11 +63,11 @@ public class QueueManager {
     }
 
     public Queue find(String queueId) throws ElastixIntegrationException {
-        return createQueueDAO().find(queueId);
+        return createQueueDao().find(queueId);
     }
 
     public void remove(Queue queue) throws ElastixIntegrationException {
-        createQueueDAO().remove(queue);
+        createQueueDao().remove(queue);
     }
 
     private void validate(Queue queue) {
@@ -86,6 +80,7 @@ public class QueueManager {
         }
     }
 
+    @SuppressWarnings({"PMD.MagicNumber", "checkstyle:MagicNumber"})
     public void restartAsteriskQueues() throws ElastixIntegrationException {
         try {
             byte[] hashArray = MessageDigest.getInstance(DIGEST_ALGORITHM).digest("xbrain".getBytes());
@@ -98,22 +93,22 @@ public class QueueManager {
     }
 
     private void validateStatusCode(int code) throws ElastixIntegrationException {
-        if (!(code >= 200 && code < 300)) {
+        if (!(code >= HTTP_200_STATUS && code < HTTP_300_STATUS)) {
             throw new ElastixIntegrationException("Não foi possível reiniciar as filas. Código: " + code, null);
         }
     }
 
-    private QueueDAO createQueueDAO() {
-        return QueueDAO.create(elastixEMFs.getAsteriskEMF());
+    private QueueDao createQueueDao() {
+        return QueueDao.create(elastixEmfs.getAsteriskEmf());
     }
 
     public void updateQueueAgents(String queueId, List<DialerAgent> agents) throws ElastixIntegrationException {
-        createQueueDAO().updateQueueAgents(queueId, agents);
+        createQueueDao().updateQueueAgents(queueId, agents);
         restartAsteriskQueues();
     }
 
     public void deleteQueueAgents(String queueId) throws ElastixIntegrationException {
-        createQueueDAO().deleteQueueAgents(queueId);
+        createQueueDao().deleteQueueAgents(queueId);
         restartAsteriskQueues();
     }
 }

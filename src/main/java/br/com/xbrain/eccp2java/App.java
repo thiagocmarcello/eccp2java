@@ -1,7 +1,6 @@
 package br.com.xbrain.eccp2java;
 
 import br.com.xbrain.eccp2java.database.CampaignContextEnum;
-import br.com.xbrain.eccp2java.database.model.Campaign;
 import br.com.xbrain.eccp2java.entity.xml.Elastix;
 import br.com.xbrain.eccp2java.entity.xml.IEccpEvent;
 import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
@@ -19,20 +18,40 @@ import java.util.List;
 
 public class App {
 
+    private static final int DEFAULT_CAMPAING_TEST_ID = 99;
+    private static final int DEFAULT_ELASTIX_TEST_PORT = 20005;
+    private static final int DEFAULT_AGENT_CONSOLE_TEST_EXTENSION = 7006;
+
+    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
+    public static final String ELASTIX_HOST_IP = "192.168.1.22";
+
     public static void main(String[] args) throws ElastixIntegrationException, EccpException, IOException {
-        createDialerCampaign(99);
-        Elastix elastix = Elastix.create("192.168.1.22", 20005, "discadora", "teste");
+        createDialerCampaign(DEFAULT_CAMPAING_TEST_ID);
+        Elastix elastix = Elastix.create(
+                ELASTIX_HOST_IP,
+                DEFAULT_ELASTIX_TEST_PORT,
+                "discadora",
+                "teste");
         EccpClient eccpClient = new EccpClient(elastix);
         eccpClient.connect();
-        AgentConsole ac = eccpClient.createAgentConsole("Agent/7006", "7006", 7006);
+        AgentConsole ac = eccpClient.createAgentConsole(
+                "Agent/7006",
+                "7006",
+                DEFAULT_AGENT_CONSOLE_TEST_EXTENSION);
         ac.addEventListener(new EventListener());
         ac.loginAgent();
-        System.in.read();
+        waitUserToPressAnyKey();
         ac.logoutAgent();
         eccpClient.close();
     }
 
-    private static Campaign createDialerCampaign(int id) throws ElastixIntegrationException {
+    private static void waitUserToPressAnyKey() throws IOException {
+        int read = System.in.read();
+        System.out.print("Typed '" + read + "'");
+    }
+
+    @SuppressWarnings({"PMD.MagicNumber", "checkstyle:MagicNumber", "checkstyle:MethodLength"})
+    private static void createDialerCampaign(int id) throws ElastixIntegrationException {
         ElastixIntegration elastix = getElastixIntegration();
 
         List<Contact> contacts = Arrays.asList(Contact.create("43991036116", "1234"),
@@ -61,19 +80,19 @@ public class App {
                                 DialerAgent.create("Agent/7002", 3L)))
                 .build();
 
-       return elastix.createCampaign(dialerCampaign);
+        elastix.createCampaign(dialerCampaign);
     }
 
     private static ElastixIntegration getElastixIntegration() {
-        ElastixIntegration elastixIntegration = ElastixIntegration.create(
+        return ElastixIntegration.create(
                 EConfiguracaoDev.IP_BANCO.getValor()
                         + EConfiguracaoDev.PORTA_BANCO.getValor(), EConfiguracaoDev.USUARIO_BANCO.getValor(),
                 EConfiguracaoDev.SENHA_BANCO.getValor());
-        return elastixIntegration;
     }
 
 }
 
+@SuppressWarnings("all")
 class EventListener implements IEccpEventListener {
 
     @Override

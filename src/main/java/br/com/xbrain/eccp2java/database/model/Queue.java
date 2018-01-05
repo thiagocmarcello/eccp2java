@@ -1,17 +1,18 @@
 package br.com.xbrain.eccp2java.database.model;
 
 import br.com.xbrain.elastix.DialerAgent;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.collections4.CollectionUtils;
+
+import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -44,9 +45,9 @@ public class Queue implements Serializable {
     }
     
     public List<DialerAgent> getDialerAgents() {
-        if(dialerAgents == null) {
+        if (dialerAgents == null) {
             dialerAgents = new ArrayList<>();
-            if(CollectionUtils.isNotEmpty(queueDetails)) {
+            if (CollectionUtils.isNotEmpty(queueDetails)) {
                 dialerAgents = createDialerAgents(queueDetails);
             }
         }
@@ -56,7 +57,7 @@ public class Queue implements Serializable {
     private List<DialerAgent> createDialerAgents(List<QueueDetail> queueDetails) {
         List<DialerAgent> agents = new ArrayList<>();
         for (QueueDetail queueDetail : queueDetails) {
-            if ("member".equals(queueDetail.getQueuesDetailsPK().getKeyword())) {
+            if ("member".equals(queueDetail.getQueuesDetailsPk().getKeyword())) {
                 agents.add(queueDetail2Agent(queueDetail));
             }
         }
@@ -64,7 +65,7 @@ public class Queue implements Serializable {
     }
 
     private DialerAgent queueDetail2Agent(QueueDetail queueDetail) {
-        return DialerAgent.create(queueDetail.getQueuesDetailsPK().getData(), 
-                Long.valueOf(queueDetail.getQueuesDetailsPK().getId()));
+        return DialerAgent.create(queueDetail.getQueuesDetailsPk().getData(),
+                Long.valueOf(queueDetail.getQueuesDetailsPk().getId()));
     }
 }

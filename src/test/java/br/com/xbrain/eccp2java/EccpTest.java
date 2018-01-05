@@ -1,8 +1,8 @@
 package br.com.xbrain.eccp2java;
 
-import br.com.xbrain.eccp2java.entity.xml.IEccpEvent;
 import br.com.xbrain.eccp2java.exception.EccpException;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
@@ -16,27 +16,6 @@ public class EccpTest {
     private static final Integer EXTENSION = 1000;
 
     public EccpTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-    
-    @Test 
-    public void shouldStartListenerThread() {
-        
     }
 
     @Test

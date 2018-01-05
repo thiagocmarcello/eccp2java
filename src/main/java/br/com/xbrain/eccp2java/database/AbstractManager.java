@@ -1,18 +1,14 @@
 package br.com.xbrain.eccp2java.database;
 
-import br.com.xbrain.eccp2java.database.connection.ElastixEMFs;
+import br.com.xbrain.eccp2java.database.connection.ElastixEmfs;
+
 import java.io.Serializable;
 
+public abstract class AbstractManager implements Serializable {
 
-/**
- *
- * @author joaomassan@xbrain.com.br (joaomassan@xbrain.com.br)
- */
-public abstract class AbstractManager<T> implements Serializable { 
-
-    protected ElastixEMFs elastixEMFs;
+    protected final ElastixEmfs elastixEmfs;
     
-    public AbstractManager(ElastixEMFs elastixEMF) {
-        this.elastixEMFs = elastixEMF;
+    public AbstractManager(ElastixEmfs elastixEmfs) {
+        this.elastixEmfs = elastixEmfs;
     }
 }

@@ -25,10 +25,9 @@ public class AgentConsoleTest {
     }
 
     private static ElastixIntegration getElastixIntegration() {
-        ElastixIntegration elastixIntegration = ElastixIntegration.create(
+        return ElastixIntegration.create(
                 EConfiguracaoDev.IP_BANCO.getValor()
                         + EConfiguracaoDev.PORTA_BANCO.getValor(), EConfiguracaoDev.USUARIO_BANCO.getValor(),
                 EConfiguracaoDev.SENHA_BANCO.getValor());
-        return elastixIntegration;
     }
 }

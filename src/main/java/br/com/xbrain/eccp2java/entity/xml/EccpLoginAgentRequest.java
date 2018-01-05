@@ -1,15 +1,12 @@
 package br.com.xbrain.eccp2java.entity.xml;
 
 import br.com.xbrain.eccp2java.util.EccpUtils;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.xml.bind.annotation.*;
 
 /**
  *
@@ -44,7 +41,7 @@ public class EccpLoginAgentRequest extends EccpAbstractRequest {
     private String appCookie;
 
     /**
-     * Gerado automaticamente a partir do appCookie
+     * Gerado automaticamente a partir do appCookie.
      */
     @XmlElement(name = "agent_hash")
     private String agentHash;

@@ -1,16 +1,17 @@
-    package br.com.xbrain.eccp2java.entity.xml;
+package br.com.xbrain.eccp2java.entity.xml;
 
 import br.com.xbrain.eccp2java.entity.xml.adapter.EccpDateTimeAdapter;
-import java.util.Date;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import java.util.Date;
 
 /**
  * <?xml version="1.0" encoding="UTF-8"?>
@@ -31,52 +32,52 @@ import lombok.ToString;
  * @author joaomassan@xbrain.com.br
  */
 @XmlRootElement(name = "agentunlinked")
-@XmlAccessorType(XmlAccessType.FIELD) 
-@EqualsAndHashCode 
+@XmlAccessorType(XmlAccessType.FIELD)
+@EqualsAndHashCode
 @ToString
 public class EccpAgentUnlinkedEvent implements IEccpAgentEvent {
-    
+
     @Getter
     @Setter
     @XmlElement(name = "calltype")
     private String calltype;
-    
+
     @Getter
     @Setter
     @XmlElement(name = "call_id")
     private Integer callId;
-    
+
     @Getter
     @Setter
     @XmlElement(name = "phone")
     private String phone;
-    
+
     @Getter
     @Setter
     @XmlElement(name = "linkend")
     @XmlJavaTypeAdapter(EccpDateTimeAdapter.class)
     private Date linkend;
-    
+
     @Getter
     @Setter
     @XmlElement(name = "duration")
     private Double duration;
-    
+
     @Getter
     @Setter
     @XmlElement(name = "shortcall")
     private Integer shortcall;
-    
+
     @Getter
     @Setter
     @XmlElement(name = "campaignlog_id")
     private Integer campaignlogId;
-    
+
     @Getter
     @Setter
     @XmlElement(name = "queue")
     private Integer queue;
-    
+
     @Getter
     @Setter
     @XmlElement(name = "agent_number")

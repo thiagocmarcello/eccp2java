@@ -1,7 +1,6 @@
 package br.com.xbrain.eccp2java;
 
 import br.com.xbrain.eccp2java.entity.xml.EccpLogoutRequest;
-import br.com.xbrain.eccp2java.entity.xml.IEccpRequest;
 import br.com.xbrain.eccp2java.exception.EccpException;
 import br.com.xbrain.eccp2java.util.DocumentUtils;
 import org.w3c.dom.Document;
@@ -21,10 +20,10 @@ public class SocketReaderAgent implements Runnable {
     private static final String RESPONSE_END_TAG = "</response>";
 
     private static final String EVENT_END_TAG = "</event>";
-
+    public static final int DEFAULT_THREAD_FINISHING_WAIT_TIME = 5000;
 
     static SocketReaderAgent start(SocketConnection socketConnection) {
-        if(!socketConnection.isConnected()) {
+        if (!socketConnection.isConnected()) {
             throw new IllegalStateException("A socket connection não está inicializada");
         }
         SocketReaderAgent socketReaderAgent = new SocketReaderAgent(socketConnection);
@@ -33,7 +32,7 @@ public class SocketReaderAgent implements Runnable {
         return socketReaderAgent;
     }
 
-    private SocketConnection socketConnection;
+    private final SocketConnection socketConnection;
 
     private boolean keepOnRunning = true;
 
@@ -49,33 +48,28 @@ public class SocketReaderAgent implements Runnable {
     }
 
     @Override
+    @SuppressWarnings("checkstyle:MethodLength")
     public void run() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(socketConnection.getInputStream()))) {
             String line;
             StringBuilder result = new StringBuilder();
-            int part = 0;
-            while (mustKeepOnRunning()) try {
-                while ((line = br.readLine()) != null) {
-                    result.append(line).append(SYSTEM_LINE_SEPARATOR);
-                    LOG.log(Level.INFO, "read-part {0}: {1}", new Object[]{++part, line});
-                    if (line.endsWith(EVENT_END_TAG)) {
-                        LOG.log(Level.INFO, "read-full: {0}", result.toString());
-                        String eventString = filterTag(result.toString(), EVENT_END_TAG);
-                        eccpClient.onEvent(
-                                new EccpAgentEventFactory().create(DocumentUtils.parseDocument(eventString)));
-                        result = new StringBuilder();
-                        part = 0;
-                    } else if (line.endsWith(RESPONSE_END_TAG)) {
-                        LOG.info("Reading response...");
-                        String responseString = filterTag(result.toString(), RESPONSE_END_TAG);
-                        Document responseDocument = DocumentUtils.parseDocument(responseString);
-                        responseHeap.add(new EccpResponseFactory(responseDocument).createResponse());
+            while (mustKeepOnRunning()) {
+                try {
+                    while ((line = br.readLine()) != null) {
+                        result.append(line).append(SYSTEM_LINE_SEPARATOR);
+                        LOG.log(Level.INFO, "read: {1}", new Object[]{line});
+                        if (line.endsWith(EVENT_END_TAG)) {
+                            parseEvent(result);
+                        } else if (line.endsWith(RESPONSE_END_TAG)) {
+                            parseResponse(result);
+                        }
                     }
+                    result = new StringBuilder();
+                } catch (SocketTimeoutException ex) {
+                    eccpClient.checkAgentConsoles();
+                    LOG.log(Level.INFO, "{0} - SocketReaderAgent timedout: {1}",
+                            new Object[]{Thread.currentThread().getName(), ex.getMessage()});
                 }
-            } catch (SocketTimeoutException ex) {
-                eccpClient.checkAgentConsoles();
-                LOG.log(Level.INFO, "{0} - SocketReaderAgent timedout: {1}",
-                        new Object[]{Thread.currentThread().getName(), ex.getMessage()});
             }
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, ex.getMessage() == null ? ex.toString() : ex.getMessage(), ex);
@@ -83,6 +77,20 @@ public class SocketReaderAgent implements Runnable {
             eccpClient.onEvent(new EccpConnectionClosedEvent());
             LOG.info("SocketReaderAgent terminou.");
         }
+    }
+
+    private void parseResponse(StringBuilder result) throws EccpException {
+        LOG.info("Reading response...");
+        String responseString = filterTag(result.toString(), RESPONSE_END_TAG);
+        Document responseDocument = DocumentUtils.parseDocument(responseString);
+        responseHeap.add(new EccpResponseFactory(responseDocument).createResponse());
+    }
+
+    private void parseEvent(StringBuilder result) throws EccpException {
+        LOG.log(Level.INFO, "read-full: {0}", result.toString());
+        String eventString = filterTag(result.toString(), EVENT_END_TAG);
+        eccpClient.onEvent(
+                new EccpAgentEventFactory().create(DocumentUtils.parseDocument(eventString)));
     }
 
     private boolean mustKeepOnRunning() {
@@ -98,12 +106,12 @@ public class SocketReaderAgent implements Runnable {
         return response.substring(begin, end + filterTag.length());
     }
 
-    void stop() throws Exception {
+    void stop() {
         try {
             keepOnRunning = false;
             sendCloseSignal();
-            runningThread.join(5000);
-        } catch(Exception ex) {
+            runningThread.join(DEFAULT_THREAD_FINISHING_WAIT_TIME);
+        } catch (Exception ex) {
             LOG.severe("O agente foi interrompido à força: " + ex.getMessage());
         }
     }

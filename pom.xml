@@ -4,11 +4,23 @@
 
     <groupId>br.com.xbrain</groupId>
     <artifactId>Eccp2Java</artifactId>
-    <version>1.1.6</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
     <name>Eccp2Java</name>
     <url>http://maven.apache.org</url>
-    <description>Atualizado para o Hibernate 5 e Java 8 a partir da versão 1.0.0</description>
+    <description>Refatorado a partir da versão 1.2 para melhorar a experiência de integração.</description>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <jackson.hibernate4.version>2.8.2</jackson.hibernate4.version>
+        <jackson.jsr310.version>2.8.3</jackson.jsr310.version>
+        <lombok.version>1.14.8</lombok.version>
+        <jsonwebtoken.version>0.7.0</jsonwebtoken.version>
+        <maven.checkstyle.version>2.17</maven.checkstyle.version>
+        <puppycrawl.checkstyle.version>7.3</puppycrawl.checkstyle.version>
+        <jexcelapi.version>2.6.12</jexcelapi.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     
     <repositories>         
         <repository>
@@ -27,9 +39,65 @@
             <url>http://192.168.1.11:8092/nexus/content/repositories/xbrain</url>
         </snapshotRepository>
     </distributionManagement>
-    
+
     <build>
         <plugins>
+
+            <!-- Checktyle -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${puppycrawl.checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>verify-style</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <consoleOutput>true</consoleOutput>
+                            <violationSeverity>warning</violationSeverity>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <configLocation>src/main/resources/checkstyle/google_checks.xml</configLocation>
+                    <!--<suppressionsLocation>src/main/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>-->
+                </configuration>
+            </plugin>
+
+            <!--PMD-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.8</version>
+                <configuration>
+                    <printFailingErrors>true</printFailingErrors>
+                    <excludeRoots>
+                        <excludeRoot>target/generated-sources</excludeRoot>
+                        <excludeRoot>test</excludeRoot>
+                    </excludeRoots>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>verify-pmd</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -57,9 +125,6 @@
             </plugin>
         </plugins>
     </build>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 
     <dependencies>
         <dependency>

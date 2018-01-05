@@ -10,9 +10,9 @@ import java.util.concurrent.Callable;
  *
  * @author xbrain (joaomassan@xbrain.com.br)
  */
-public abstract class AbstractDAO<T, P> {
+public abstract class AbstractDao<T, P> {
 
-    AbstractDAO() {}
+    AbstractDao() {}
     
     public abstract T create(T object) throws ElastixIntegrationException;
     
@@ -29,12 +29,12 @@ public abstract class AbstractDAO<T, P> {
         try {
             em.getTransaction().begin();
 
-            for(Callable callable : callables) {
+            for (Callable callable : callables) {
                 callable.call();
             }
 
             em.getTransaction().commit();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             throw new ElastixIntegrationException("Erro ao executar a transação", ex);
         } finally {
             em.close();

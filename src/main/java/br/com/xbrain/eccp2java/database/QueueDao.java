@@ -3,7 +3,7 @@ package br.com.xbrain.eccp2java.database;
 import br.com.xbrain.eccp2java.database.model.Queue;
 import br.com.xbrain.eccp2java.database.model.QueueConfig;
 import br.com.xbrain.eccp2java.database.model.QueueDetail;
-import br.com.xbrain.eccp2java.database.model.QueuesDetailPK;
+import br.com.xbrain.eccp2java.database.model.QueuesDetailPk;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
 import br.com.xbrain.elastix.DialerAgent;
 
@@ -13,21 +13,18 @@ import javax.persistence.PersistenceException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
 
-public class QueueDAO extends AbstractDAO<Queue, String> {
+public class QueueDao extends AbstractDao<Queue, String> {
 
-    private static final Logger LOG = Logger.getLogger(QueueDAO.class.getName());
-
-    public static QueueDAO create(EntityManagerFactory emf) {
-        QueueDAO queueDAO = new QueueDAO();
-        queueDAO.emf = emf;
-        return queueDAO;
+    public static QueueDao create(EntityManagerFactory emf) {
+        QueueDao queueDao = new QueueDao();
+        queueDao.emf = emf;
+        return queueDao;
     }
 
     private EntityManagerFactory emf;
 
-    private QueueDAO() {
+    private QueueDao() {
     }
 
     @Override
@@ -57,7 +54,7 @@ public class QueueDAO extends AbstractDAO<Queue, String> {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.createQuery("DELETE FROM QueueDetail qd WHERE qd.queuesDetailsPK.id = :_queueConfigId")
+            em.createQuery("DELETE FROM QueueDetail qd WHERE qd.queuesDetailsPk.id = :_queueConfigId")
                     .setParameter("_queueConfigId", queue.getQueueConfig().getExtension())
                     .executeUpdate();
             em.remove(em.find(QueueConfig.class, queue.getQueueConfig().getExtension()));
@@ -77,19 +74,18 @@ public class QueueDAO extends AbstractDAO<Queue, String> {
     }
 
     @Override
+    @SuppressWarnings("checkstyle:MethodLength")
     public Queue find(String id) throws ElastixIntegrationException {
         EntityManager em = emf.createEntityManager();
         try {
             QueueConfig queueConfig = em.find(QueueConfig.class, id);
             if (queueConfig == null) {
-                throw new ElastixIntegrationException("Fila não encontrada", null)
-                        .addInfo("message", "A fila '%s' não foi encontrada.", id);
+                throw new ElastixIntegrationException("Fila não encontrada", null);
             }
 
             List<QueueDetail> queueDetails
                     = em.createQuery(
-                    "SELECT qd FROM QueueDetail qd WHERE qd.queuesDetailsPK.id = :_queueId",
-                    QueueDetail.class)
+                    "SELECT qd FROM QueueDetail qd WHERE qd.queuesDetailsPk.id = :_queueId", QueueDetail.class)
                     .setParameter("_queueId", queueConfig.getExtension())
                     .getResultList();
 
@@ -101,6 +97,7 @@ public class QueueDAO extends AbstractDAO<Queue, String> {
         }
     }
 
+    @SuppressWarnings("checkstyle:MethodLength")
     public void updateQueueAgents(final String queueId, final List<DialerAgent> agents)
             throws ElastixIntegrationException {
 
@@ -108,8 +105,8 @@ public class QueueDAO extends AbstractDAO<Queue, String> {
 
         Callable deleteAgents = (Callable<Void>) () -> {
             em.createQuery("DELETE FROM QueueDetail qd "
-                    + "WHERE qd.queuesDetailsPK.keyword = :_keyword "
-                    + "AND qd.queuesDetailsPK.id = :_id ")
+                    + "WHERE qd.queuesDetailsPk.keyword = :_keyword "
+                    + "AND qd.queuesDetailsPk.id = :_id ")
                     .setParameter("_keyword", "member")
                     .setParameter("_id", queueId)
                     .executeUpdate();
@@ -118,7 +115,7 @@ public class QueueDAO extends AbstractDAO<Queue, String> {
 
         Callable insertAgents = (Callable<Void>) () -> {
             for (DialerAgent agent : agents) {
-                QueuesDetailPK pk = new QueuesDetailPK(queueId, "member", agent.getElaxtixNameWithPenalty());
+                QueuesDetailPk pk = new QueuesDetailPk(queueId, "member", agent.getElaxtixNameWithPenalty());
                 QueueDetail queueDetail = new QueueDetail(pk);
                 queueDetail.setFlags(0);
                 em.persist(queueDetail);
@@ -134,8 +131,8 @@ public class QueueDAO extends AbstractDAO<Queue, String> {
         EntityManager em = emf.createEntityManager();
         Callable deleteAgents = (Callable<Void>) () -> {
             em.createQuery("DELETE FROM QueueDetail qd "
-                    + "WHERE qd.queuesDetailsPK.keyword = :_keyword "
-                    + "AND qd.queuesDetailsPK.id = :_id ")
+                    + "WHERE qd.queuesDetailsPk.keyword = :_keyword "
+                    + "AND qd.queuesDetailsPk.id = :_id ")
                     .setParameter("_keyword", "member")
                     .setParameter("_id", queueId)
                     .executeUpdate();

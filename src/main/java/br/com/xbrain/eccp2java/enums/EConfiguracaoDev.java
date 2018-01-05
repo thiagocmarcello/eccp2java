@@ -2,10 +2,7 @@ package br.com.xbrain.eccp2java.enums;
 
 import lombok.Getter;
 
-/**
- *
- * @author xbrain
- */
+@SuppressWarnings("PMD.AvoidUsingHardCodedIP")
 public enum EConfiguracaoDev {
 
     IP_QUEUES_RELOAD("192.168.1.23"),

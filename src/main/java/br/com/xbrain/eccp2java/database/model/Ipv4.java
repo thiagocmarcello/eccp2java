@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 @Value
+@SuppressWarnings({"PMD.MagicNumber", "checkstyle:MagicNumber"})
 public class Ipv4 implements Serializable {
 
     public static Ipv4 of(String part1, String part2, String part3, String part4) {
@@ -13,12 +14,12 @@ public class Ipv4 implements Serializable {
     }
 
     public static Ipv4 of(String fullIpv4Address) {
-        String[] p = fullIpv4Address.split("\\.");
-        return Ipv4.of(p[0], p[1], p[2], p[3]);
+        String[] parts = fullIpv4Address.split("\\.");
+        return Ipv4.of(parts[0], parts[1], parts[2], parts[3]);
     }
 
     private Ipv4(String part1, String part2, String part3, String part4) {
-        if( isNotValid(part1, part2, part3, part4)) {
+        if (isNotValid(part1, part2, part3, part4)) {
             throw new IllegalArgumentException("Partes do IP não são válidas.");
         }
         this.part1 = part1;

@@ -1,14 +1,12 @@
 package br.com.xbrain.eccp2java.util;
 
+import org.junit.Test;
+
 import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * A data de testes é 2016/03/02 10:53:0'0"
@@ -50,22 +48,6 @@ public class DateUtilsTest {
     public DateUtilsTest() {
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
-
     @Test
     public void testCreateDate() {
         System.out.println("createDate");

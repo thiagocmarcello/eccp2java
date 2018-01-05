@@ -35,7 +35,7 @@ public class EccpAgentEventFactory {
         }
     }
 
-    private Element getResponseElement() throws EccpException {
+    private Element getResponseElement() {
         if (responseElement == null) {
             responseElement = (Element) document.getFirstChild();
         }
@@ -56,7 +56,7 @@ public class EccpAgentEventFactory {
     }
 
     private Class<? extends IEccpEvent> getEventClass(String eventName) throws ClassNotFoundException {
-        if(!EccpUtils.getEventTypeMap().containsKey(eventName)) {
+        if (!EccpUtils.getEventTypeMap().containsKey(eventName)) {
             throw new ClassNotFoundException("Não encontrada a classe de mapeamento do evento " + eventName);
         }
         return EccpUtils.getEventTypeMap().get(eventName);

@@ -10,7 +10,7 @@ public class EccpResponseHeap {
     private static EccpResponseHeap instance;
 
     public static EccpResponseHeap instance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new EccpResponseHeap();
         }
         return instance;

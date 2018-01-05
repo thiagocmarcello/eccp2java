@@ -1,22 +1,10 @@
 package br.com.xbrain.eccp2java.database.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 
 /**
@@ -24,7 +12,7 @@ import javax.persistence.TemporalType;
  * @author joaomassan@xbrain.com.br (xbrain)
  */
 @Entity
-@Table(name = "calls", catalog = "call_center", schema = "")
+@Table(name = "calls", catalog = "call_center")
 public class Call implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -336,10 +324,7 @@ public class Call implements Serializable {
             return false;
         }
         Call other = (Call) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override

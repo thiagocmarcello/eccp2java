@@ -1,24 +1,23 @@
 package br.com.xbrain.eccp2java.database;
 
-import br.com.xbrain.eccp2java.database.connection.ElastixEMFs;
+import br.com.xbrain.eccp2java.database.connection.ElastixEmfs;
 import br.com.xbrain.eccp2java.database.model.*;
 import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 
 /**
  *
@@ -31,30 +30,18 @@ public class QueueManagerTest {
     public QueueManagerTest() {
     }
 
-    private ElastixEMFs elastixEMFs;
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
+    private ElastixEmfs elastixEmfs;
 
     @Before
     public void setUp() {
-        elastixEMFs = Mockito.mock(ElastixEMFs.class);
-        Mockito.when(elastixEMFs.getUrl()).then((InvocationOnMock invocation) -> "http://localhost:3306");
-    }
-
-    @After
-    public void tearDown() {
+        elastixEmfs = Mockito.mock(ElastixEmfs.class);
+        Mockito.when(elastixEmfs.getUrl()).then((InvocationOnMock invocation) -> "http://localhost:3306");
     }
 
     @Test
     public void testSaveInvalidQueue() throws ElastixIntegrationException {
         QueueManager queueManager = QueueManager.create(
-                elastixEMFs,
+                elastixEmfs,
                 Ipv4.of(EConfiguracaoDev.IP_QUEUES_RELOAD.getValor()),
                 Integer.parseInt(EConfiguracaoDev.PORTA_QUEUES_RELOAD.getValor()));
 
@@ -71,7 +58,7 @@ public class QueueManagerTest {
     @Test
     public void testSaveInvalidQueueConfig() throws ElastixIntegrationException {
         QueueManager queueManager = QueueManager.create(
-                elastixEMFs,
+                elastixEmfs,
                 Ipv4.of(EConfiguracaoDev.IP_QUEUES_RELOAD.getValor()),
                 Integer.parseInt(EConfiguracaoDev.PORTA_QUEUES_RELOAD.getValor()));
 
@@ -126,156 +113,155 @@ public class QueueManagerTest {
         queuesConfig.setMonitorSpoken(0);
         queuesConfig.setCallbackId("none");
         List<QueueDetail> queuesDetailList = createQueueDetailsList(id);
-        Queue queue = new Queue(queuesConfig, queuesDetailList);
-        return queue;
+        return new Queue(queuesConfig, queuesDetailList);
     }
 
     private static List<QueueDetail> createQueueDetailsList(String id) {
         List<QueueDetail> queuesDetailList = new ArrayList<>();
         QueueDetail queuesDetails;
-        QueuesDetailPK queuesDetailsPK;
-        queuesDetailsPK = new QueuesDetailPK(id, "announce-frequency", "0");
+        QueuesDetailPk queuesDetailsPK;
+        queuesDetailsPK = new QueuesDetailPk(id, "announce-frequency", "0");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "announce-holdtime", "no");
+        queuesDetailsPK = new QueuesDetailPk(id, "announce-holdtime", "no");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "announce-position", "no");
+        queuesDetailsPK = new QueuesDetailPk(id, "announce-position", "no");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "answered_elsewhere", "0");
+        queuesDetailsPK = new QueuesDetailPk(id, "answered_elsewhere", "0");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "autofill", "no");
+        queuesDetailsPK = new QueuesDetailPk(id, "autofill", "no");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "autopause", "no");
+        queuesDetailsPK = new QueuesDetailPk(id, "autopause", "no");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "autopausebusy", "no");
+        queuesDetailsPK = new QueuesDetailPk(id, "autopausebusy", "no");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "autopausedelay", "0");
+        queuesDetailsPK = new QueuesDetailPk(id, "autopausedelay", "0");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "autopauseunavail", "no");
+        queuesDetailsPK = new QueuesDetailPk(id, "autopauseunavail", "no");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "cron_schedule", "never");
+        queuesDetailsPK = new QueuesDetailPk(id, "cron_schedule", "never");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "eventmemberstatus", "no");
+        queuesDetailsPK = new QueuesDetailPk(id, "eventmemberstatus", "no");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "eventwhencalled", "no");
+        queuesDetailsPK = new QueuesDetailPk(id, "eventwhencalled", "no");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "joinempty", "yes");
+        queuesDetailsPK = new QueuesDetailPk(id, "joinempty", "yes");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "leavewhenempty", "no");
+        queuesDetailsPK = new QueuesDetailPk(id, "leavewhenempty", "no");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "maxlen", "0");
+        queuesDetailsPK = new QueuesDetailPk(id, "maxlen", "0");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "memberdelay", "0");
+        queuesDetailsPK = new QueuesDetailPk(id, "memberdelay", "0");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "monitor-format", "");
+        queuesDetailsPK = new QueuesDetailPk(id, "monitor-format", "");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "monitor-join", "yes");
+        queuesDetailsPK = new QueuesDetailPk(id, "monitor-join", "yes");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "penaltymemberslimit", "0");
+        queuesDetailsPK = new QueuesDetailPk(id, "penaltymemberslimit", "0");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "periodic-announce-frequency", "0");
+        queuesDetailsPK = new QueuesDetailPk(id, "periodic-announce-frequency", "0");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "queue-callswaiting", "silence/1");
+        queuesDetailsPK = new QueuesDetailPk(id, "queue-callswaiting", "silence/1");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "queue-thankyou", "");
+        queuesDetailsPK = new QueuesDetailPk(id, "queue-thankyou", "");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "queue-thereare", "silence/1");
+        queuesDetailsPK = new QueuesDetailPk(id, "queue-thereare", "silence/1");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "queue-youarenext", "silence/1");
+        queuesDetailsPK = new QueuesDetailPk(id, "queue-youarenext", "silence/1");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "reportholdtime", "no");
+        queuesDetailsPK = new QueuesDetailPk(id, "reportholdtime", "no");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "retry", "5");
+        queuesDetailsPK = new QueuesDetailPk(id, "retry", "5");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "ringinuse", "yes");
+        queuesDetailsPK = new QueuesDetailPk(id, "ringinuse", "yes");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "servicelevel", "60");
+        queuesDetailsPK = new QueuesDetailPk(id, "servicelevel", "60");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "skip_joinannounce", "");
+        queuesDetailsPK = new QueuesDetailPk(id, "skip_joinannounce", "");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "strategy", "ringall");
+        queuesDetailsPK = new QueuesDetailPk(id, "strategy", "ringall");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "timeout", "15");
+        queuesDetailsPK = new QueuesDetailPk(id, "timeout", "15");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "timeoutpriority", "app");
+        queuesDetailsPK = new QueuesDetailPk(id, "timeoutpriority", "app");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "timeoutrestart", "no");
+        queuesDetailsPK = new QueuesDetailPk(id, "timeoutrestart", "no");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "weight", "0");
+        queuesDetailsPK = new QueuesDetailPk(id, "weight", "0");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
-        queuesDetailsPK = new QueuesDetailPK(id, "wrapuptime", "0");
+        queuesDetailsPK = new QueuesDetailPk(id, "wrapuptime", "0");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 
         // '8080', 'member', 'Agent/8007,0', '0'
-        queuesDetailsPK = new QueuesDetailPK(id, "member", "Agent/8002,0");
+        queuesDetailsPK = new QueuesDetailPk(id, "member", "Agent/8002,0");
         queuesDetails = new QueueDetail(queuesDetailsPK, 0);
         queuesDetailList.add(queuesDetails);
 

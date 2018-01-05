@@ -27,12 +27,12 @@ public class AgentConsole {
     private final Integer extension;
 
     @Getter
-    private String appCookie;
+    private final String appCookie;
 
     @Getter
     private String agentHash;
 
-    private Set<IEccpEventListener> eventListeners = new HashSet<>();
+    private final Set<IEccpEventListener> eventListeners = new HashSet<>();
 
     AgentConsole(EccpClient eccp, String agentNumber, String password, Integer extension, String appCookie) {
         this.eccpClient = eccp;
@@ -48,8 +48,7 @@ public class AgentConsole {
 
     public IEccpResponse send(IEccpRequest request) throws EccpException {
         LOG.log(Level.INFO, "Sending {0}...", request);
-        IEccpResponse response = eccpClient.send(request);
-        return response;
+        return eccpClient.send(request);
     }
 
     public EccpLoginAgentResponse loginAgent() throws EccpException {

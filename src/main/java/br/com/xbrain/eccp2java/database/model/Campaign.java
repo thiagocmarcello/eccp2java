@@ -1,35 +1,21 @@
 package br.com.xbrain.eccp2java.database.model;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 /**
  *
  * @author joaomassan@xbrain.com.br (xbrain)
  */
 @Entity
-@Table(name = "campaign", catalog = "call_center", schema = "")
+@Table(name = "campaign", catalog = "call_center")
+@EqualsAndHashCode(of = "id")
 public class Campaign implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -86,7 +72,7 @@ public class Campaign implements Serializable {
     private String estatus;
     @JoinColumn(name = "id_url", referencedColumnName = "id")
     @ManyToOne
-    private CampaignExternalUrl campaignExternalURL;
+    private CampaignExternalUrl campaignExternalUrl;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "campaign", fetch = FetchType.LAZY)
     private Collection<Call> calls = new ArrayList<>();
     @JoinTable(name = "campaign_form", joinColumns = {
@@ -247,12 +233,12 @@ public class Campaign implements Serializable {
         this.estatus = estatus;
     }
 
-    public CampaignExternalUrl getCampaignExternalURL() {
-        return campaignExternalURL;
+    public CampaignExternalUrl getCampaignExternalUrl() {
+        return campaignExternalUrl;
     }
 
-    public void setCampaignExternalURL(CampaignExternalUrl campaignExternalURL) {
-        this.campaignExternalURL = campaignExternalURL;
+    public void setCampaignExternalUrl(CampaignExternalUrl campaignExternalUrl) {
+        this.campaignExternalUrl = campaignExternalUrl;
     }
 
     public Collection<Call> getCalls() {
@@ -263,22 +249,6 @@ public class Campaign implements Serializable {
         this.calls = calls;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (!(object instanceof Campaign)) {
-            return false;
-        }
-        Campaign other = (Campaign) object;
-        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
-    }
-  
     public Collection<Form> getFormCollection() {
         return formCollection;
     }
@@ -289,6 +259,9 @@ public class Campaign implements Serializable {
 
     @Override
     public String toString() {
-        return "Campaign{" + "id=" + id + ", name=" + name + ", datetimeInit=" + datetimeInit + ", datetimeEnd=" + datetimeEnd + ", daytimeInit=" + daytimeInit + ", daytimeEnd=" + daytimeEnd + ", retries=" + retries + ", trunk=" + trunk + ", context=" + context + ", queue=" + queue + ", maxCanales=" + maxCanales + ", numCompletadas=" + numCompletadas + ", estatus=" + estatus + '}';
+        return "Campaign{" + "id=" + id + ", name=" + name + ", datetimeInit=" + datetimeInit
+                + ", datetimeEnd=" + datetimeEnd + ", daytimeInit=" + daytimeInit + ", daytimeEnd=" + daytimeEnd
+                + ", retries=" + retries + ", trunk=" + trunk + ", context=" + context + ", queue=" + queue
+                + ", maxCanales=" + maxCanales + ", numCompletadas=" + numCompletadas + ", estatus=" + estatus + '}';
     }
 }

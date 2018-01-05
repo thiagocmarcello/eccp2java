@@ -2,7 +2,6 @@ package br.com.xbrain.eccp2java.database;
 
 import br.com.xbrain.eccp2java.database.model.Campaign;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
-import br.com.xbrain.elastix.ElastixIntegration;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -10,23 +9,16 @@ import javax.persistence.PersistenceException;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.util.List;
-import java.util.logging.Logger;
 
-/**
- *
- * @author joaomassan@xbrain.com.br (xbrain)
- */
-public class CampaignDAO extends AbstractDAO<Campaign, Integer> {
+public class CampaignDao extends AbstractDao<Campaign, Integer> {
 
-    private static final Logger LOG = Logger.getLogger(CampaignDAO.class.getName());
-
-    public static CampaignDAO create(EntityManagerFactory emf) {
-        return new CampaignDAO(emf);
+    public static CampaignDao create(EntityManagerFactory emf) {
+        return new CampaignDao(emf);
     }
 
     private final EntityManagerFactory emf;
 
-    private CampaignDAO(EntityManagerFactory emf) {
+    private CampaignDao(EntityManagerFactory emf) {
         this.emf = emf;
     }
 
@@ -119,7 +111,7 @@ public class CampaignDAO extends AbstractDAO<Campaign, Integer> {
         try {
             return em.createQuery("SELECT MAX(c) FROM Campaign c WHERE c.estatus = 'A'", Campaign.class)
                     .getSingleResult();
-        } catch(PersistenceException ex) {
+        } catch (PersistenceException ex) {
             throw new ElastixIntegrationException("Não foi possível consultar a última campanha", ex);
         }
 

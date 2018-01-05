@@ -12,6 +12,8 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Elastix {
 
+    public static final int DEFAULT_ELASTIX_PORT = 20005;
+
     public static Elastix create(String host, int port, String user, String password) {
         return new Elastix(host, port, user, password);
     }
@@ -20,7 +22,7 @@ public class Elastix {
     private final String host;
     
     @Getter
-    private int port = 20005;
+    private int port = DEFAULT_ELASTIX_PORT;
     
     @Getter
     private final String user;

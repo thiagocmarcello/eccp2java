@@ -11,7 +11,7 @@ enum CampaignStatusEnum {
     ACTIVE("A"), INACTIVE("I");
 
     @Getter
-    String value;
+    final String value;
 
     CampaignStatusEnum(String value) {
         this.value = value;

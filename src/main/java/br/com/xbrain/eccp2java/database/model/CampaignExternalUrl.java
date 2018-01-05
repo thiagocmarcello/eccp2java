@@ -1,23 +1,12 @@
 package br.com.xbrain.eccp2java.database.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 
 
-/**
- *
- * @author joaomassan@xbrain.com.br (xbrain)
- */
 @Entity
-@Table(name = "campaign_external_url", catalog = "call_center", schema = "")
+@Table(name = "campaign_external_url", catalog = "call_center")
 public class CampaignExternalUrl implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -118,10 +107,7 @@ public class CampaignExternalUrl implements Serializable {
             return false;
         }
         CampaignExternalUrl other = (CampaignExternalUrl) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override

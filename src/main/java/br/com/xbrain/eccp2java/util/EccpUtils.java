@@ -23,11 +23,11 @@ public class EccpUtils {
         Reflections reflections = new Reflections("br.com.xbrain.eccp2java.entity.xml");
         Map<String, Class<? extends IEccpResponse>> responseTypeMap = new HashMap<>();
         Map<String, Class<? extends IEccpEvent>> eventTypeMap = new HashMap<>();
-        for(Class<?> clss : reflections.getTypesAnnotatedWith(XmlRootElement.class)) {
+        for (Class<?> clss : reflections.getTypesAnnotatedWith(XmlRootElement.class)) {
             XmlRootElement ann = clss.getAnnotation(XmlRootElement.class);
-            if(IEccpResponse.class.isAssignableFrom(clss)) {
+            if (IEccpResponse.class.isAssignableFrom(clss)) {
                 responseTypeMap.put(ann.name(), (Class<IEccpResponse>) clss);
-            } else if(IEccpEvent.class.isAssignableFrom(clss)) {
+            } else if (IEccpEvent.class.isAssignableFrom(clss)) {
                 eventTypeMap.put(ann.name(), (Class<IEccpEvent>) clss);
             }
         }
@@ -36,12 +36,13 @@ public class EccpUtils {
         EVENT_TYPE_MAP = Collections.unmodifiableMap(eventTypeMap);
     }
 
+    @SuppressWarnings({"PMD.MagicNumber", "checkstyle:MagicNumber"})
     public static String generateAgentHash(String agentNumber, String password, String cookie) {
         String agentHash = cookie + agentNumber + password;
         try  {
-            MessageDigest m = MessageDigest.getInstance("MD5");
-            m.update(agentHash.getBytes(), 0, agentHash.length());
-            return new BigInteger(1, m.digest()).toString(16);
+            MessageDigest message = MessageDigest.getInstance("MD5");
+            message.update(agentHash.getBytes(), 0, agentHash.length());
+            return new BigInteger(1, message.digest()).toString(16);
         } catch (NoSuchAlgorithmException ex) {
             throw new RuntimeException("Não foi possível calcular o código hash do agente", ex);
         }

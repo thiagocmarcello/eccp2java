@@ -39,8 +39,7 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
         socketConnection = SocketConnection.connect(this);
     }
 
-    public synchronized AgentConsole createAgentConsole(String agentNumber, String password, Integer extension)
-            throws EccpException {
+    public synchronized AgentConsole createAgentConsole(String agentNumber, String password, Integer extension) {
         AgentConsole console = new AgentConsole(
                 this,
                 agentNumber,
@@ -57,7 +56,7 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
             IEccpAgentEvent agentEvent = (IEccpAgentEvent) event;
             String agentNumber = agentEvent.getAgentNumber();
             AgentConsole console = loggedAgentConsoles.get(agentNumber);
-            if(console != null) {
+            if (console != null) {
                 console.fireEvent(agentEvent);
             }
         } else {
@@ -71,7 +70,7 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
 
     @Override
     public void onEvent(IEccpEvent event) {
-        if(!loggedAgentConsoles.isEmpty()) {
+        if (!loggedAgentConsoles.isEmpty()) {
             fireEvent(event);
         }
     }

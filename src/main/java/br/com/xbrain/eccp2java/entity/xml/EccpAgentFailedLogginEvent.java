@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * e.g.
  * <event>
  *   <agentfailedlogin>
  *       <agent>Agent/9000</agent>

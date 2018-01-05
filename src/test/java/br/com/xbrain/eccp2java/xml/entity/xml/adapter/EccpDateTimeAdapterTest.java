@@ -1,19 +1,13 @@
 package br.com.xbrain.eccp2java.xml.entity.xml.adapter;
 
 import br.com.xbrain.eccp2java.entity.xml.adapter.EccpDateTimeAdapter;
+import org.junit.Test;
+
 import java.util.Calendar;
 import java.util.Date;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
-/**
- *
- * @author xbrain
- */
+import static org.junit.Assert.assertEquals;
+
 public class EccpDateTimeAdapterTest {
     
     private static final Date TEST_DATE;
@@ -21,7 +15,7 @@ public class EccpDateTimeAdapterTest {
     
     static {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DAY_OF_YEAR, 2016);
+        calendar.set(Calendar.YEAR, 2016);
         calendar.set(Calendar.MONTH, 1);
         calendar.set(Calendar.DAY_OF_MONTH, 17);
         calendar.set(Calendar.HOUR_OF_DAY, 15);
@@ -35,30 +29,14 @@ public class EccpDateTimeAdapterTest {
     public EccpDateTimeAdapterTest() {
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
-
-//    @Test
+    @Test
     public void shouldReturnCorrespondingStringFormatedDateObject() throws Exception {
         EccpDateTimeAdapter adapter = new EccpDateTimeAdapter();
         String marshaled = adapter.marshal(TEST_DATE);
         assertEquals(TEST_STRING, marshaled);
     }
     
-//    @Test
+    @Test
     public void shouldReturnCorrespondingDateObject () throws Exception {
         EccpDateTimeAdapter adapter = new EccpDateTimeAdapter();
         Date unmarshaled = adapter.unmarshal(TEST_STRING);

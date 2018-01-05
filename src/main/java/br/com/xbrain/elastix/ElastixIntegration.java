@@ -2,7 +2,7 @@ package br.com.xbrain.elastix;
 
 import br.com.xbrain.eccp2java.database.CampaignManager;
 import br.com.xbrain.eccp2java.database.QueueManager;
-import br.com.xbrain.eccp2java.database.connection.ElastixEMFs;
+import br.com.xbrain.eccp2java.database.connection.ElastixEmfs;
 import br.com.xbrain.eccp2java.database.model.Campaign;
 import br.com.xbrain.eccp2java.database.model.Ipv4;
 import br.com.xbrain.eccp2java.database.model.Queue;
@@ -14,22 +14,19 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class ElastixIntegration {
 
-    private static final Logger LOG = Logger.getLogger(ElastixIntegration.class.getName());
-
     private Ipv4 elastixHost;
 
-    private ElastixEMFs elastixEMFs;
+    private ElastixEmfs elastixEmfs;
 
     public static ElastixIntegration create(String jdbcUrl, String user, String password) {
         validateCreateParams(jdbcUrl, user, password);
         try {
             ElastixIntegration elastixIntegration = new ElastixIntegration();
             elastixIntegration.elastixHost = parseIpFromJdbcUrl(jdbcUrl);
-            elastixIntegration.elastixEMFs = ElastixEMFs.create(
+            elastixIntegration.elastixEmfs = ElastixEmfs.create(
                     new URI(jdbcUrl).toString(),
                     user,
                     password);
@@ -39,7 +36,8 @@ public class ElastixIntegration {
         }
     }
 
-    private static Ipv4 parseIpFromJdbcUrl(String jdbcUrl) throws URISyntaxException {
+    @SuppressWarnings({"PMD.MagicNumber", "checkstyle:MagicNumber"})
+    private static Ipv4 parseIpFromJdbcUrl(String jdbcUrl) {
         String[] ipParts = jdbcUrl.replaceAll(
                 "(?:jdbc:.+://)([\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3})(?::[\\d]{4,6})",
                 "$1").split("\\.");
@@ -70,13 +68,13 @@ public class ElastixIntegration {
 
     private QueueManager createQueueManager() throws ElastixIntegrationException {
         return QueueManager.create(
-                elastixEMFs,
+                elastixEmfs,
                 elastixHost,
                 Integer.parseInt(EConfiguracaoDev.PORTA_QUEUES_RELOAD.getValor()));
     }
 
     private CampaignManager createCampaignManager() {
-        return CampaignManager.create(elastixEMFs);
+        return CampaignManager.create(elastixEmfs);
     }
 
     public Campaign createCampaign(DialerCampaign dialerCampaign) throws ElastixIntegrationException {
