@@ -1,96 +1,83 @@
 package br.com.xbrain.eccp2java;
 
-import br.com.xbrain.eccp2java.exception.EccpException;
+import br.com.xbrain.eccp2java.database.CampaignContextEnum;
+import br.com.xbrain.eccp2java.database.model.Campaign;
 import br.com.xbrain.eccp2java.entity.xml.Elastix;
-import br.com.xbrain.eccp2java.entity.xml.EccpLoginAgentResponse;
-import br.com.xbrain.eccp2java.entity.xml.EccpLogoutAgentResponse;
 import br.com.xbrain.eccp2java.entity.xml.IEccpEvent;
 import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
+import br.com.xbrain.eccp2java.exception.EccpException;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
+import br.com.xbrain.eccp2java.util.DateUtils;
+import br.com.xbrain.elastix.Contact;
+import br.com.xbrain.elastix.DialerAgent;
 import br.com.xbrain.elastix.DialerCampaign;
 import br.com.xbrain.elastix.ElastixIntegration;
-import java.io.IOException;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.collections4.CollectionUtils;
 
-// FIXME após mover tudo para os testes, apagar esta classe
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 public class App {
 
-    static {
-        System.out.println("teste");
+    public static void main(String[] args) throws ElastixIntegrationException, EccpException, IOException {
+        createDialerCampaign(99);
+        Elastix elastix = Elastix.create("192.168.1.22", 20005, "discadora", "teste");
+        EccpClient eccpClient = new EccpClient(elastix);
+        eccpClient.connect();
+        AgentConsole ac = eccpClient.createAgentConsole("Agent/7006", "7006", 7006);
+        ac.addEventListener(new EventListener());
+        ac.loginAgent();
+        System.in.read();
+        ac.logoutAgent();
+        eccpClient.close();
     }
 
-    public static App app = new App();
+    private static Campaign createDialerCampaign(int id) throws ElastixIntegrationException {
+        ElastixIntegration elastix = getElastixIntegration();
 
-    public App() {
-        System.out.println("Test1");
+        List<Contact> contacts = Arrays.asList(Contact.create("43991036116", "1234"),
+                Contact.create("43991036116", "234"),
+                Contact.create("43991036116", "456"),
+                Contact.create("43991036116", "342"),
+                Contact.create("43991036116", "345"),
+                Contact.create("43991036116", "342"),
+                Contact.create("43991036116", "345"));
+
+        DialerCampaign dialerCampaign = DialerCampaign.builder()
+                .identifiedBy(id)
+                .named("Campanha " + id)
+                .from(DateUtils.createDate(2018, 1, 1, 0, 0, 0, 0))
+                .to(DateUtils.createDate(2018, 1, 31, 0, 0, 0, 0))
+                .startingAt("08:00")
+                .endingAt("20:30")
+                .usingContext(CampaignContextEnum.FROM_INTERNAL)
+                .showingScript("<b>Camapanha Willie</b>")
+                .retrying(5)
+                .dialingTo(contacts)
+                .answeringWith(
+                        Arrays.asList(
+                                DialerAgent.create("Agent/7006", 1L),
+                                DialerAgent.create("Agent/7001", 2L),
+                                DialerAgent.create("Agent/7002", 3L)))
+                .build();
+
+       return elastix.createCampaign(dialerCampaign);
     }
 
-    public static void __main(String[] args) throws ElastixIntegrationException {
-        ElastixIntegration elastix = ElastixIntegration.create(
-                EConfiguracaoDev.IP_BANCO.getValor() + EConfiguracaoDev.PORTA_BANCO.getValor(),
-                EConfiguracaoDev.USUARIO_BANCO.getValor(),
+    private static ElastixIntegration getElastixIntegration() {
+        ElastixIntegration elastixIntegration = ElastixIntegration.create(
+                EConfiguracaoDev.IP_BANCO.getValor()
+                        + EConfiguracaoDev.PORTA_BANCO.getValor(), EConfiguracaoDev.USUARIO_BANCO.getValor(),
                 EConfiguracaoDev.SENHA_BANCO.getValor());
-        
-        List<DialerCampaign> dialerCampaigns = elastix.getActiveDialerCampaigns();
-        if (CollectionUtils.isNotEmpty(dialerCampaigns)) {
-            System.out.println("Quantidade de campanhas ativas: " + dialerCampaigns.size());
-            for (DialerCampaign dialerCampaign : dialerCampaigns) {
-                System.out.println("\tCampanha: " + dialerCampaign.getCampaign());
-                System.out.println("\tFila: " + dialerCampaign.getQueue());
-                System.out.println("\tQtde agentes: " + CollectionUtils.size(dialerCampaign.getQueue().getDialerAgents()));
-                System.out.println("\tAgentes: " + dialerCampaign.getQueue().getDialerAgents());
-            }
-        }
+        return elastixIntegration;
     }
 
-    public static void _main(String[] args) throws IOException, ElastixIntegrationException {
+}
 
-        try {
-            Elastix elastix = Elastix.create("192.168.1.22", 20005, "discadora", "teste");
-            EccpClient eccp = new EccpClient(elastix);
-            eccp.addEventListener(null, new IEccpEventListener<IEccpEvent>() {
+class EventListener implements IEccpEventListener {
 
-                @Override
-                public void onEvent(IEccpEvent event) {
-                    System.out.println("\tevent: " + event);
-                }
-            });
-
-            AgentConsole console = eccp.createAgentConsole("Agent/8002", "8020", 8020);
-            EccpLoginAgentResponse loginResponse = console.loginAgent();
-
-            System.out.println("Login agent: " + loginResponse);
-            pause("Pressione qualquer tecla para logoff");
-            EccpLogoutAgentResponse logoutResponse = console.logoutAgent();
-            System.out.println("Logout agent: " + logoutResponse);
-            System.out.println("Agent console logout: " + console.logoutAgent());
-
-            pause("Pressione qualquer tecla para criar a campanha");
-
-            //AppTest.createDialerCampaign(25);
-
-            pause("Pressione qualquer tecla para fazer o login novamente");
-
-            console = eccp.createAgentConsole("Agent/8020", "8020", 8020);
-            loginResponse = console.loginAgent();
-            pause("Pressione qualquer tecla para encerrar");
-            console.logoutAgent();
-            console.logoutAgent();
-            eccp.close();
-        } catch (Exception ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public static void pause(String text) {
-        System.out.println("\n" + text + "...");
-        try {
-            System.in.read();
-        } catch (IOException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    @Override
+    public void onEvent(IEccpEvent event) {
+        System.out.println(">>> Event: " + event.toString());
     }
 }

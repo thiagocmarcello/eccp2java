@@ -1,28 +1,24 @@
 package br.com.xbrain;
 
 import br.com.xbrain.eccp2java.AgentConsole;
-import br.com.xbrain.eccp2java.App;
 import br.com.xbrain.eccp2java.EccpClient;
-import br.com.xbrain.eccp2java.IEccpEventListener;
 import br.com.xbrain.eccp2java.database.CampaignContextEnum;
 import br.com.xbrain.eccp2java.database.model.Campaign;
 import br.com.xbrain.eccp2java.database.model.Queue;
-import br.com.xbrain.eccp2java.exception.EccpException;
-import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
-import br.com.xbrain.eccp2java.util.DateUtils;
-import br.com.xbrain.eccp2java.entity.xml.Elastix;
 import br.com.xbrain.eccp2java.entity.xml.EccpLoginAgentResponse;
 import br.com.xbrain.eccp2java.entity.xml.EccpLogoutAgentResponse;
-import br.com.xbrain.eccp2java.entity.xml.IEccpEvent;
+import br.com.xbrain.eccp2java.entity.xml.Elastix;
 import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
-import br.com.xbrain.elastix.DialerAgent;
+import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
+import br.com.xbrain.eccp2java.util.DateUtils;
 import br.com.xbrain.elastix.Contact;
+import br.com.xbrain.elastix.DialerAgent;
 import br.com.xbrain.elastix.DialerCampaign;
 import br.com.xbrain.elastix.ElastixIntegration;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -109,7 +105,7 @@ public class AppTest {
 
             Elastix elastix = Elastix.create("192.168.1.23", 20005, "discadora", "teste1");
             EccpClient eccp = new EccpClient(elastix);
-            eccp.addEventListener(null, (IEccpEventListener) event -> System.out.println("\tevent: " + event));
+//            eccp.addEventListener(null, (IEccpEventListener) event -> System.out.println("\tevent: " + event));
 
             AgentConsole console = eccp.createAgentConsole(AGENT, PASSWORD, EXTEN);
             EccpLoginAgentResponse loginResponse = console.loginAgent();
@@ -120,7 +116,7 @@ public class AppTest {
             System.out.println("Agent console logout: " + console.logoutAgent());
             eccp.close();
         } catch (Exception ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("deu merda " + ex.getMessage());
         }
     }

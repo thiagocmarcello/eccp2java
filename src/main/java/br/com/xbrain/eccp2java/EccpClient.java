@@ -6,7 +6,8 @@ import lombok.Getter;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,9 +18,7 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
 
     private static final Logger LOG = Logger.getLogger(EccpClient.class.getName());
 
-    private final Map<Class<? extends IEccpEvent>, Set<IEccpEventListener<IEccpEvent>>> eventListeners = new HashMap<>();
-
-    private final Set<AgentConsole> loggedAgentConsoles = new HashSet<>();
+    private final Map<String, AgentConsole> loggedAgentConsoles = new HashMap<>();
 
     private SocketConnection socketConnection;
 
@@ -31,12 +30,11 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
         this.elastix = elastix;
     }
 
-    public final boolean isConnected() {
+    boolean isConnected() {
         return socketConnection != null && socketConnection.isConnected();
     }
 
-
-    public void connect() throws EccpException {
+    void connect() throws EccpException {
         LOG.info("Criando socket de conexão...");
         socketConnection = SocketConnection.connect(this);
     }
@@ -49,68 +47,47 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
                 password,
                 extension,
                 socketConnection.getAppCookie());
-        loggedAgentConsoles.add(console);
+        loggedAgentConsoles.put(agentNumber, console);
         notify();
         return console;
     }
 
-    public void addEventListener(Class<? extends IEccpEvent> clss, IEccpEventListener<IEccpEvent> listener) {
-        synchronized (eventListeners) {
-            if (!eventListeners.containsKey(clss)) {
-                eventListeners.put(clss, new HashSet<>());
-            }
-            eventListeners.get(clss).add(listener);
-        }
-    }
-
-    public void removeEventListener(Class<? extends IEccpEvent> clss, IEccpEventListener<IEccpEvent> listener) {
-        if (eventListeners.containsKey(clss)) {
-            for (Iterator<IEccpEventListener<IEccpEvent>> it = eventListeners.get(clss).iterator(); it.hasNext(); ) {
-                IEccpEventListener<IEccpEvent> current = it.next();
-                if (current.equals(listener)) {
-                    it.remove();
-                }
-            }
-        }
-    }
-
-    // FIXME propagar o evento se for do agente e foda-se o mundo.
     private void fireEvent(IEccpEvent event) {
-        if (eventListeners.containsKey(null)) {
-            eventListeners.get(null).forEach((item) -> {
-                item.onEvent(event);
-            });
-        }
-
-        if (eventListeners.containsKey(event.getClass())) {
-            eventListeners.get(event.getClass()).forEach((item) -> {
-                item.onEvent(event);
-            });
+        if (event instanceof IEccpAgentEvent) {
+            IEccpAgentEvent agentEvent = (IEccpAgentEvent) event;
+            String agentNumber = agentEvent.getAgentNumber();
+            AgentConsole console = loggedAgentConsoles.get(agentNumber);
+            if(console != null) {
+                console.fireEvent(agentEvent);
+            }
+        } else {
+            loggedAgentConsoles.values().forEach(console -> console.fireEvent(event));
         }
     }
 
-    public IEccpResponse send(IEccpRequest request) throws EccpException {
+    IEccpResponse send(IEccpRequest request) throws EccpException {
         return socketConnection.send(request);
     }
 
     @Override
     public void onEvent(IEccpEvent event) {
-        fireEvent(event);
+        if(!loggedAgentConsoles.isEmpty()) {
+            fireEvent(event);
+        }
     }
 
     void removeAgentConsole(AgentConsole agentConsole) {
         LOG.log(Level.INFO, "Removendo agentConsole: {0}", new Object[]{agentConsole});
 
         synchronized (loggedAgentConsoles) {
-            boolean removed = loggedAgentConsoles.remove(agentConsole);
-            LOG.info(removed ? "Removido" : "Não removido");
+            loggedAgentConsoles.remove(agentConsole.getAgentNumber());
         }
     }
 
     @Override
     public synchronized void checkAgentConsoles() {
         LOG.info("Sincronizando agentConsoles...");
-        if (loggedAgentConsoles.stream().filter(AgentConsole::isConnected).count() == 0) {
+        if (loggedAgentConsoles.values().stream().filter(AgentConsole::isConnected).count() == 0) {
             try {
                 LOG.info("SocketReaderAgent waiting");
                 wait();
@@ -125,8 +102,10 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
         try {
             LOG.info("Encerrando EccpClient");
             socketConnection.close();
+            System.exit(0);
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Problema ao encerrar SocketReaderAgent: " + ex.getMessage(), ex);
+            System.exit(1);
         }
     }
 }

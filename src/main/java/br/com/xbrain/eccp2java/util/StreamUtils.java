@@ -22,7 +22,7 @@ public class StreamUtils {
     public static <T extends OutputStream> boolean flushAndClose(T outputStream) {
         try {
             outputStream.flush();
-            close((Closeable) outputStream);
+            close(outputStream);
             return true;
         } catch(IOException ex) {
             LOG.warning(ex.getMessage());

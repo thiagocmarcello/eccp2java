@@ -1,19 +1,15 @@
 package br.com.xbrain.eccp2java;
 
+import br.com.xbrain.eccp2java.entity.xml.*;
 import br.com.xbrain.eccp2java.exception.EccpException;
 import br.com.xbrain.eccp2java.util.EccpUtils;
-import br.com.xbrain.eccp2java.entity.xml.EccpLoginAgentRequest;
-import br.com.xbrain.eccp2java.entity.xml.EccpLoginAgentResponse;
-import br.com.xbrain.eccp2java.entity.xml.EccpLoginRequest;
-import br.com.xbrain.eccp2java.entity.xml.EccpLoginResponse;
-import br.com.xbrain.eccp2java.entity.xml.EccpLogoutAgentRequest;
-import br.com.xbrain.eccp2java.entity.xml.EccpLogoutAgentResponse;
-import br.com.xbrain.eccp2java.entity.xml.IEccpRequest;
-import br.com.xbrain.eccp2java.entity.xml.IEccpResponse;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @EqualsAndHashCode(of = "agentNumber")
 public class AgentConsole {
@@ -36,7 +32,9 @@ public class AgentConsole {
     @Getter
     private String agentHash;
 
-    public AgentConsole(EccpClient eccp, String agentNumber, String password, Integer extension, String appCookie) {
+    private Set<IEccpEventListener> eventListeners = new HashSet<>();
+
+    AgentConsole(EccpClient eccp, String agentNumber, String password, Integer extension, String appCookie) {
         this.eccpClient = eccp;
         this.agentNumber = agentNumber;
         this.password = password;
@@ -72,5 +70,13 @@ public class AgentConsole {
         EccpLogoutAgentResponse response = (EccpLogoutAgentResponse) send(request);
         eccpClient.removeAgentConsole(this);
         return response;
+    }
+
+    void fireEvent(IEccpEvent event) {
+        eventListeners.forEach(listener -> listener.onEvent(event));
+    }
+
+    public void addEventListener(IEccpEventListener listener) {
+        eventListeners.add(listener);
     }
 }

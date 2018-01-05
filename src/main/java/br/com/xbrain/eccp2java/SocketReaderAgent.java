@@ -1,5 +1,8 @@
 package br.com.xbrain.eccp2java;
 
+import br.com.xbrain.eccp2java.entity.xml.EccpLogoutRequest;
+import br.com.xbrain.eccp2java.entity.xml.IEccpRequest;
+import br.com.xbrain.eccp2java.exception.EccpException;
 import br.com.xbrain.eccp2java.util.DocumentUtils;
 import org.w3c.dom.Document;
 
@@ -20,7 +23,7 @@ public class SocketReaderAgent implements Runnable {
     private static final String EVENT_END_TAG = "</event>";
 
 
-    public static SocketReaderAgent start(SocketConnection socketConnection) {
+    static SocketReaderAgent start(SocketConnection socketConnection) {
         if(!socketConnection.isConnected()) {
             throw new IllegalStateException("A socket connection não está inicializada");
         }
@@ -51,7 +54,7 @@ public class SocketReaderAgent implements Runnable {
             String line;
             StringBuilder result = new StringBuilder();
             int part = 0;
-            while (keepOnRunning) try {
+            while (mustKeepOnRunning()) try {
                 while ((line = br.readLine()) != null) {
                     result.append(line).append(SYSTEM_LINE_SEPARATOR);
                     LOG.log(Level.INFO, "read-part {0}: {1}", new Object[]{++part, line});
@@ -78,8 +81,12 @@ public class SocketReaderAgent implements Runnable {
             LOG.log(Level.SEVERE, ex.getMessage() == null ? ex.toString() : ex.getMessage(), ex);
         } finally {
             eccpClient.onEvent(new EccpConnectionClosedEvent());
-            socketConnection.close();
+            LOG.info("SocketReaderAgent terminou.");
         }
+    }
+
+    private boolean mustKeepOnRunning() {
+        return keepOnRunning && socketConnection.isConnected();
     }
 
     private static String filterTag(String response, String filterTag) {
@@ -91,7 +98,17 @@ public class SocketReaderAgent implements Runnable {
         return response.substring(begin, end + filterTag.length());
     }
 
-    public void stop() throws Exception {
-        keepOnRunning = false;
+    void stop() throws Exception {
+        try {
+            keepOnRunning = false;
+            sendCloseSignal();
+            runningThread.join(5000);
+        } catch(Exception ex) {
+            LOG.severe("O agente foi interrompido à força: " + ex.getMessage());
+        }
+    }
+
+    private void sendCloseSignal() throws EccpException {
+        socketConnection.send(EccpLogoutRequest.create());
     }
 }

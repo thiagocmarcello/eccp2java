@@ -54,7 +54,7 @@ public class EccpRequestFactory <T extends IEccpRequest> {
                 documentBuilder = getDocumentBuilderFactory().newDocumentBuilder();
             } catch (ParserConfigurationException ex) {
                 LOG.log(Level.SEVERE, null, ex);
-                throw EccpException.create(EccpException.Error.CAN_NOT_CREATE_DOCUMENT, ex);
+                throw new EccpException("Não foi possível criar o documento", ex);
             }
         }
         return documentBuilder;
@@ -77,7 +77,7 @@ public class EccpRequestFactory <T extends IEccpRequest> {
         }
     }
 
-    public Document toDocument() {
+    Document toDocument() {
         return document;
     }
     

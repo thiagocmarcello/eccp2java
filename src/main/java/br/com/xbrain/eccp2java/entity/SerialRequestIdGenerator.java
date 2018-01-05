@@ -1,4 +1,4 @@
-package br.com.xbrain.eccp2java.entity.xml;
+package br.com.xbrain.eccp2java.entity;
 
 public class SerialRequestIdGenerator {
 

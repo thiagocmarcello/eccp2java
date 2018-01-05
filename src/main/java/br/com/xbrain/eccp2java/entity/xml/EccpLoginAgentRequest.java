@@ -27,7 +27,7 @@ public class EccpLoginAgentRequest extends EccpAbstractRequest {
             String appCookie,
             Integer extension) {
 
-        return new EccpLoginAgentRequest(SerialRequestIdGenerator.nextId(), agentNumber, password, appCookie, extension);
+        return new EccpLoginAgentRequest(agentNumber, password, appCookie, extension);
     }
 
     @Getter
@@ -64,7 +64,7 @@ public class EccpLoginAgentRequest extends EccpAbstractRequest {
     private EccpLoginAgentRequest() {
     }
 
-    private EccpLoginAgentRequest(Long id, String agentNumber, String password, String appCookie, Integer extension) {
+    private EccpLoginAgentRequest(String agentNumber, String password, String appCookie, Integer extension) {
         this.agentNumber = agentNumber;
         this.password = password;
         this.appCookie = appCookie;

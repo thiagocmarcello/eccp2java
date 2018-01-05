@@ -40,14 +40,6 @@ public class EccpTest {
     }
 
     @Test
-    public void shouldAddEventListener() {
-        EccpClient eccp = Mockito.mock(EccpClient.class);
-        IEccpEventListener event = Mockito.mock(IEccpEventListener.class);
-        eccp.addEventListener(null, event);
-        Mockito.verify(eccp).addEventListener( null, event);
-    }
-    
-    @Test
     public void shouldCreateAgentConsole() throws EccpException {
         EccpClient eccp = Mockito.mock(EccpClient.class);
         Mockito.when(eccp.createAgentConsole(AGENT_NUMBER, PASSWORD, EXTENSION))
