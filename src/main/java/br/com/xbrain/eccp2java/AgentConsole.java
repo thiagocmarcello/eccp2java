@@ -16,7 +16,7 @@ public class AgentConsole {
 
     private static final Logger LOG = Logger.getLogger(AgentConsole.class.getName());
 
-    private final EccpClient eccpClient;
+    private EccpClient eccpClient;
 
     private final String password;
 
@@ -42,16 +42,22 @@ public class AgentConsole {
         this.appCookie = appCookie;
     }
 
+    void disconnect() {
+        eccpClient = null;
+    }
+
     public boolean isConnected() {
-        return eccpClient.isConnected();
+        return eccpClient != null && eccpClient.isConnected();
     }
 
     public IEccpResponse send(IEccpRequest request) throws EccpException {
+        ensureConnected();
         LOG.log(Level.INFO, "Sending {0}...", request);
         return eccpClient.send(request);
     }
 
     public EccpLoginAgentResponse loginAgent() throws EccpException {
+        ensureConnected();
         EccpLoginAgentRequest request = EccpLoginAgentRequest.create(
                 agentNumber,
                 password,
@@ -63,6 +69,7 @@ public class AgentConsole {
     }
 
     public EccpLogoutAgentResponse logoutAgent() throws EccpException {
+        ensureConnected();
         EccpLogoutAgentRequest request = EccpLogoutAgentRequest.create(
                 agentNumber,
                 EccpUtils.generateAgentHash(agentNumber, password, appCookie));
@@ -77,5 +84,11 @@ public class AgentConsole {
 
     public void addEventListener(IEccpEventListener listener) {
         eventListeners.add(listener);
+    }
+
+    private void ensureConnected() {
+        if(!isConnected()) {
+            throw new IllegalStateException("O AgenteConsole não está conectado.");
+        }
     }
 }

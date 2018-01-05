@@ -40,6 +40,7 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
     }
 
     public synchronized AgentConsole createAgentConsole(String agentNumber, String password, Integer extension) {
+        ensureConnected();
         AgentConsole console = new AgentConsole(
                 this,
                 agentNumber,
@@ -65,6 +66,7 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
     }
 
     IEccpResponse send(IEccpRequest request) throws EccpException {
+        ensureConnected();
         return socketConnection.send(request);
     }
 
@@ -78,8 +80,13 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
     void removeAgentConsole(AgentConsole agentConsole) {
         LOG.log(Level.INFO, "Removendo agentConsole: {0}", new Object[]{agentConsole});
 
+        AgentConsole console = null;
         synchronized (loggedAgentConsoles) {
-            loggedAgentConsoles.remove(agentConsole.getAgentNumber());
+            console = loggedAgentConsoles.remove(agentConsole.getAgentNumber());
+        }
+
+        if(console != null) {
+            console.disconnect();
         }
     }
 
@@ -98,13 +105,19 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
 
     @Override
     public void close() throws IOException {
+        ensureConnected();
         try {
             LOG.info("Encerrando EccpClient");
             socketConnection.close();
-            System.exit(0);
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Problema ao encerrar SocketReaderAgent: " + ex.getMessage(), ex);
             System.exit(1);
+        }
+    }
+
+    private void ensureConnected() {
+        if(socketConnection == null || !socketConnection.isConnected()) {
+            throw new IllegalStateException("EccpClient não está connectado.");
         }
     }
 }

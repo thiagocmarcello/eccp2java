@@ -1,9 +1,6 @@
 package br.com.xbrain.eccp2java;
 
-import br.com.xbrain.eccp2java.entity.xml.EccpLoginRequest;
-import br.com.xbrain.eccp2java.entity.xml.EccpLoginResponse;
-import br.com.xbrain.eccp2java.entity.xml.IEccpRequest;
-import br.com.xbrain.eccp2java.entity.xml.IEccpResponse;
+import br.com.xbrain.eccp2java.entity.xml.*;
 import br.com.xbrain.eccp2java.exception.EccpException;
 import br.com.xbrain.eccp2java.util.DocumentUtils;
 import br.com.xbrain.eccp2java.util.StreamUtils;
@@ -92,7 +89,7 @@ public class SocketConnection implements AutoCloseable {
     }
 
     public boolean isConnected() {
-        return socket.isConnected();
+        return socket != null && socket.isConnected();
     }
 
     public IEccpResponse send(IEccpRequest request) throws EccpException {
@@ -103,7 +100,11 @@ public class SocketConnection implements AutoCloseable {
             throw new EccpException("Não foi possível enviar o request: " + request, ex);
         }
 
-        return waitResponse(request);
+        if (request instanceof EccpLogoutRequest) {
+            return new EccpLogoutResponse();
+        } else {
+            return waitResponse(request);
+        }
     }
 
     private DOMSource parseEccpRequestIntoDomSource(IEccpRequest request) throws EccpException {
@@ -141,6 +142,9 @@ public class SocketConnection implements AutoCloseable {
         try {
             socketReaderAgent.stop();
             StreamUtils.close(inputStream, outputStream, socket);
+            inputStream = null;
+            outputStream = null;
+            socket = null;
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Erro ao encerrar a SocketConnection", ex);
         }
