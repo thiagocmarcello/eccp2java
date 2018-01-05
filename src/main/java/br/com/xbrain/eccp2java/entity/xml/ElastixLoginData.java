@@ -10,12 +10,12 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-public class Elastix {
+public class ElastixLoginData {
 
     public static final int DEFAULT_ELASTIX_PORT = 20005;
 
-    public static Elastix create(String host, int port, String user, String password) {
-        return new Elastix(host, port, user, password);
+    public static ElastixLoginData create(String host, int port, String user, String password) {
+        return new ElastixLoginData(host, port, user, password);
     }
     
     @Getter
@@ -30,7 +30,7 @@ public class Elastix {
     @Getter
     private final String password;
 
-    private Elastix(String host, int port, String user, String password) {
+    private ElastixLoginData(String host, int port, String user, String password) {
         this.host = host;
         this.port = port;
         this.user = user;

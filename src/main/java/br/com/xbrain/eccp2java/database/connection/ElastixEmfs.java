@@ -15,8 +15,8 @@ public class ElastixEmfs {
     private transient EntityManagerFactory callCenterEmf;
 
     public enum PersistenceUnitToDatabase {
-        CALL_CENTER_PU("br.com.xbrain.Eccp2JavaAsteriskPU", "/call_center"),
-        ASTERISK_PU("br.com.xbrain.Eccp2JavaAsteriskPU", "  /asterisk");
+        CALL_CENTER_PU("br.com.xbrain.Eccp2JavaAsteriskPu", "/call_center"),
+        ASTERISK_PU("br.com.xbrain.Eccp2JavaAsteriskPu", "  /asterisk");
         
         @Getter
         final String puName;

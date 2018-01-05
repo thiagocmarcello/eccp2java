@@ -16,11 +16,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-/**
- *
- * @author joaomassan@xbrain.com.br
- */
-@ToString
+@ToString(of = {"campaign", "queue"})
 @EqualsAndHashCode(of = {"campaign", "queue"})
 public class DialerCampaign implements Serializable {
 

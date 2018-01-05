@@ -16,7 +16,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.isNull;
 
-public class ElastixIntegrationCase {
+public class ElastixLoginDataIntegrationCase {
 
     @Test
     public void deveCriarUmaCampanhaListarEApagar() {
