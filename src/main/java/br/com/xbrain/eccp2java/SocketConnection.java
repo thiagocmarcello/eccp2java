@@ -62,7 +62,7 @@ public class SocketConnection implements AutoCloseable {
 
     public void connect() throws EccpException {
         try {
-            socket = new Socket(eccpClient.getElastix().getHost(), eccpClient.getElastix().getPort());
+            socket = new Socket(eccpClient.getElastixLoginData().getHost(), eccpClient.getElastixLoginData().getPort());
             socket.setSoTimeout(Integer.parseInt(timeout.toString()));
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
@@ -82,12 +82,12 @@ public class SocketConnection implements AutoCloseable {
 
     private void login() throws EccpException {
         EccpLoginRequest loginRequest = EccpLoginRequest.create(
-                eccpClient.getElastix().getUser(),
-                eccpClient.getElastix().getPassword());
+                eccpClient.getElastixLoginData().getUser(),
+                eccpClient.getElastixLoginData().getPassword());
         EccpLoginResponse loginResponse = (EccpLoginResponse) send(loginRequest);
         this.appCookie = loginResponse.getAppCookie();
         if (loginResponse.isFailure()) {
-            throw new EccpException("Problema ao conectar com o Elastix: " + loginResponse, null);
+            throw new EccpException("Problema ao conectar com o ElastixLoginData: " + loginResponse, null);
         }
     }
 

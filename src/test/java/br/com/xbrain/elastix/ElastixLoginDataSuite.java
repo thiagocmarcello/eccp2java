@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
  *
  * @author joaomassan@xbrain.com.br
  */
-public class ElastixSuite {
+public class ElastixLoginDataSuite {
     
     public static final int EXTEN = 8002;
     public static final String PASSWORD = "8002";
@@ -70,7 +70,7 @@ public class ElastixSuite {
             URI uri = new URI(path);
             assertEquals(uri.toString(), path);
         } catch (URISyntaxException ex) {
-            Logger.getLogger(ElastixSuite.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ElastixLoginDataSuite.class.getName()).log(Level.SEVERE, null, ex);
             fail(ex.getMessage());
         }
     }

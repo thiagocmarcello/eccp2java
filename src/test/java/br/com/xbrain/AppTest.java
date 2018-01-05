@@ -7,7 +7,7 @@ import br.com.xbrain.eccp2java.database.model.Campaign;
 import br.com.xbrain.eccp2java.database.model.Queue;
 import br.com.xbrain.eccp2java.entity.xml.EccpLoginAgentResponse;
 import br.com.xbrain.eccp2java.entity.xml.EccpLogoutAgentResponse;
-import br.com.xbrain.eccp2java.entity.xml.Elastix;
+import br.com.xbrain.eccp2java.entity.xml.ElastixLoginData;
 import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
 import br.com.xbrain.eccp2java.exception.ElastixIntegrationException;
 import br.com.xbrain.eccp2java.util.DateUtils;
@@ -103,8 +103,8 @@ public class AppTest {
             Campaign campaign = elastixIntegration.createCampaign(dialerCampaign);
             System.out.println("Campaign: " + campaign.toString());
 
-            Elastix elastix = Elastix.create("192.168.1.23", 20005, "discadora", "teste1");
-            EccpClient eccp = new EccpClient(elastix);
+            ElastixLoginData elastixLoginData = ElastixLoginData.create("192.168.1.23", 20005, "discadora", "teste1");
+            EccpClient eccp = new EccpClient(elastixLoginData);
 //            eccp.addEventListener(null, (IEccpEventListener) event -> System.out.println("\tevent: " + event));
 
             AgentConsole console = eccp.createAgentConsole(AGENT, PASSWORD, EXTEN);

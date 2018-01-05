@@ -27,7 +27,7 @@ public class CampaignExternalUrl implements Serializable {
     @Basic(optional = false)
     @Column(name = "opentype")
     private String opentype;
-    @OneToMany(mappedBy = "campaignExternalURL")
+    @OneToMany(mappedBy = "campaignExternalUrl")
     private Collection<Campaign> campaignCollection;
 
     public CampaignExternalUrl() {

@@ -23,11 +23,11 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
     private SocketConnection socketConnection;
 
     @Getter
-    private final Elastix elastix;
+    private final ElastixLoginData elastixLoginData;
 
-    public EccpClient(Elastix elastix) {
+    public EccpClient(ElastixLoginData elastixLoginData) {
         LOG.info("Iniciando EccpClient...");
-        this.elastix = elastix;
+        this.elastixLoginData = elastixLoginData;
     }
 
     boolean isConnected() {

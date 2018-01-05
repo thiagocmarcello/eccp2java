@@ -1,7 +1,7 @@
 package br.com.xbrain.eccp2java;
 
 import br.com.xbrain.eccp2java.database.CampaignContextEnum;
-import br.com.xbrain.eccp2java.entity.xml.Elastix;
+import br.com.xbrain.eccp2java.entity.xml.ElastixLoginData;
 import br.com.xbrain.eccp2java.entity.xml.IEccpEvent;
 import br.com.xbrain.eccp2java.enums.EConfiguracaoDev;
 import br.com.xbrain.eccp2java.exception.EccpException;
@@ -27,12 +27,12 @@ public class App {
 
     public static void main(String[] args) throws ElastixIntegrationException, EccpException, IOException {
         createDialerCampaign(DEFAULT_CAMPAING_TEST_ID);
-        Elastix elastix = Elastix.create(
+        ElastixLoginData elastixLoginData = ElastixLoginData.create(
                 ELASTIX_HOST_IP,
                 DEFAULT_ELASTIX_TEST_PORT,
                 "discadora",
                 "teste");
-        EccpClient eccpClient = new EccpClient(elastix);
+        EccpClient eccpClient = new EccpClient(elastixLoginData);
         eccpClient.connect();
         AgentConsole ac = eccpClient.createAgentConsole(
                 "Agent/7006",
@@ -89,7 +89,6 @@ public class App {
                         + EConfiguracaoDev.PORTA_BANCO.getValor(), EConfiguracaoDev.USUARIO_BANCO.getValor(),
                 EConfiguracaoDev.SENHA_BANCO.getValor());
     }
-
 }
 
 @SuppressWarnings("all")
@@ -99,4 +98,5 @@ class EventListener implements IEccpEventListener {
     public void onEvent(IEccpEvent event) {
         System.out.println(">>> Event: " + event.toString());
     }
+
 }
