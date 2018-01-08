@@ -61,13 +61,4 @@ public class AgentConsoleTest {
                 agentConsole.logoutAgent(),
                 CoreMatchers.instanceOf(EccpLogoutAgentResponse.class));
     }
-
-    @Test
-    public void fireEvent() throws Exception {
-    }
-
-    @Test
-    public void addEventListener() throws Exception {
-    }
-
 }
