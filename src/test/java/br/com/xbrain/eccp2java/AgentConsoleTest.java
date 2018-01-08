@@ -5,6 +5,7 @@ import br.com.xbrain.eccp2java.entity.xml.EccpLoginAgentResponse;
 import br.com.xbrain.eccp2java.entity.xml.EccpLogoutAgentResponse;
 import br.com.xbrain.eccp2java.entity.xml.IEccpResponse;
 import org.hamcrest.CoreMatchers;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -38,7 +39,7 @@ public class AgentConsoleTest {
     }
 
     @Test
-    public void loginAgent() throws Exception {
+    public void shouldLoginAgent() throws Exception {
         EccpClient client = Mockito.mock(EccpClient.class);
         given(client.isConnected()).willReturn(true);
         given(client.send(anyObject()))
@@ -50,7 +51,7 @@ public class AgentConsoleTest {
     }
 
     @Test
-    public void logoutAgent() throws Exception {
+    public void shouldLogoutAgent() throws Exception {
         EccpClient client = Mockito.mock(EccpClient.class);
         given(client.isConnected()).willReturn(true);
         given(client.send(anyObject()))
