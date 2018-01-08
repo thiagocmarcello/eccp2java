@@ -65,7 +65,7 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
         }
     }
 
-    IEccpResponse send(IEccpRequest request) throws EccpException {
+    public IEccpResponse send(IEccpRequest request) throws EccpException {
         ensureConnected();
         return socketConnection.send(request);
     }
@@ -85,7 +85,7 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
             console = loggedAgentConsoles.remove(agentConsole.getAgentNumber());
         }
 
-        if(console != null) {
+        if (console != null) {
             console.disconnect();
         }
     }
@@ -116,7 +116,7 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
     }
 
     private void ensureConnected() {
-        if(socketConnection == null || !socketConnection.isConnected()) {
+        if (socketConnection == null || !socketConnection.isConnected()) {
             throw new IllegalStateException("EccpClient não está connectado.");
         }
     }

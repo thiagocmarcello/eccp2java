@@ -5,16 +5,14 @@ import br.com.xbrain.eccp2java.entity.xml.EccpLoginAgentResponse;
 import br.com.xbrain.eccp2java.entity.xml.EccpLogoutAgentResponse;
 import br.com.xbrain.eccp2java.entity.xml.IEccpResponse;
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
+import org.hamcrest.core.IsNull;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.verify;
 
 public class AgentConsoleTest {
 
@@ -34,8 +32,10 @@ public class AgentConsoleTest {
         given(client.isConnected()).willReturn(true);
         given(client.send(Mockito.anyObject())).willReturn(Mockito.mock(IEccpResponse.class));
         AgentConsole agentConsole = new AgentConsole(client, "x", "x", 1, "x");
-        agentConsole.send(EccpLoginAgentRequest.create("a", "b","c", 123));
-        verify(client.send(Mockito.anyObject()));
+        IEccpResponse response = agentConsole.send(
+                EccpLoginAgentRequest.create("a", "b","c", 123));
+        assertThat("Deveria ter retornado uma resposta de login de agente",
+                response, is(IsNull.notNullValue()));
     }
 
     @Test

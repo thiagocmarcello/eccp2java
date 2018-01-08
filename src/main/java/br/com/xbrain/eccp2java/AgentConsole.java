@@ -87,7 +87,7 @@ public class AgentConsole {
     }
 
     private void ensureConnected() {
-        if(!isConnected()) {
+        if (!isConnected()) {
             throw new IllegalStateException("O AgenteConsole não está conectado.");
         }
     }
