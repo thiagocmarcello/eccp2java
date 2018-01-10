@@ -35,7 +35,8 @@ public class AgentConsoleTest {
         IEccpResponse response = agentConsole.send(
                 EccpLoginAgentRequest.create("a", "b","c", 123));
         assertThat("Deveria ter retornado uma resposta de login de agente",
-                response, is(IsNull.notNullValue()));
+                response,
+                is(IsNull.notNullValue()));
     }
 
     @Test

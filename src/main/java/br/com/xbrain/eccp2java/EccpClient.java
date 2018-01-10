@@ -30,13 +30,14 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
         this.elastixLoginData = elastixLoginData;
     }
 
-    boolean isConnected() {
+    public boolean isConnected() {
         return socketConnection != null && socketConnection.isConnected();
     }
 
-    void connect() throws EccpException {
+    public EccpClient connect() throws EccpException {
         LOG.info("Criando socket de conexão...");
         socketConnection = SocketConnection.connect(this);
+        return this;
     }
 
     public synchronized AgentConsole createAgentConsole(String agentNumber, String password, Integer extension) {
@@ -77,7 +78,7 @@ public class EccpClient implements IEccpCallback, Serializable, AutoCloseable {
         }
     }
 
-    void removeAgentConsole(AgentConsole agentConsole) {
+    public void removeAgentConsole(AgentConsole agentConsole) {
         LOG.log(Level.INFO, "Removendo agentConsole: {0}", new Object[]{agentConsole});
 
         AgentConsole console = null;
